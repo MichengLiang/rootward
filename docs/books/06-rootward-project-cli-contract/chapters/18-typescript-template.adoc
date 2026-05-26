@@ -5,13 +5,13 @@ TypeScript 模板是 Rootward 契约的一个语言实现。该实现使用 Node
 
 依赖职责如下。
 
-* Commander 承担命令表面：command、subcommand、option、help、version 和 usage error。
-* Zod 承担运行时 schema 校验：配置文件、规范化配置、命令结果和错误对象边界。
-* smol-toml 承担 TOML 解析和序列化：`init` 生成默认配置，`config print` 投影规范化配置。
-* globby 承担文件发现：include、exclude、gitignore-aware glob、hidden 和 symlink 相关行为。
-* Vitest 承担契约测试。
-* tsdown 承担 ESM 构建和类型声明输出。
-* Biome 承担 TypeScript 项目的格式和检查。
+* <<commander,Commander>> 承担命令表面：command、subcommand、option、help、version 和 usage error。
+* <<zod,Zod>> 承担运行时 schema 校验：配置文件、规范化配置、命令结果和错误对象边界。
+* <<smol-toml,smol-toml>> 承担 TOML 解析和序列化：`init` 生成默认配置，`config print` 投影规范化配置。
+* <<globby,globby>> 承担文件发现：include、exclude、gitignore-aware glob、hidden 和 symlink 相关行为。
+* <<vitest,Vitest>> 承担契约测试。
+* <<tsdown,tsdown>> 承担 ESM 构建和类型声明输出。
+* <<biome,Biome>> 承担 TypeScript 项目的格式和检查。
 
 源码结构固定为：
 
@@ -61,3 +61,5 @@ src/
 `io/output.ts` 定义人类输出和 JSON 输出投影。核心模块不直接调用 `console.log`。
 
 TypeScript 模板的测试应覆盖 xref:test-contract[] 中的全部行为。现有 TypeScript 模板用测试证明项目型 CLI 骨架成立，而不是只证明命令入口存在。
+
+TypeScript 模板不得把 Commander option object 直接当成核心配置。CLI option 需要先转换为 Rootward discovery overrides，再交给配置层合并。该规则防止 Commander 的命名、默认值和错误对象泄漏到 Rootward core。

@@ -43,3 +43,5 @@ foo init [path] [--force]
 默认配置是初始化契约的一部分。默认配置内容见 xref:appendix-b-default-config[]。默认配置用于建立可运行项目语境，不代表业务工具支持文件类型的上限。
 
 `init` 成功的公共投影应包含 project root 和 config path。JSON 模式下，该信息进入成功 envelope 的 `data`；人类模式下，该信息进入终端摘要。
+
+`init` 的错误语义必须保持项目语境边界清楚。目标目录不存在、目标路径不是目录、配置已存在和配置写入失败都需要映射到稳定错误对象。已存在配置使用 `PROJECT_ALREADY_INITIALIZED`；文件系统写入失败属于运行时失败或具体语言实现的内部错误映射。语言模板不得在初始化失败时留下半个公共契约，例如只创建 cache/state 而缺少 config 的成功返回。

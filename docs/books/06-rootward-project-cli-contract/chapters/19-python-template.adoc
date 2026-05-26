@@ -25,19 +25,19 @@ dev = [
 ]
 ----
 
-uv 承担 Python 项目管理、依赖同步、环境运行和命令执行。模板工程命令应使用 `uv run`。
+<<uv,uv>> 承担 Python 项目管理、依赖同步、环境运行和命令执行。模板工程命令应使用 `uv run`。
 
-Typer 承担命令表面。它负责 subcommand、option、argument、help 和 usage error。Typer 不承担项目发现、配置读取、文件发现、scanner 分发或输出投影。
+<<typer,Typer>> 承担命令表面。它负责 subcommand、option、argument、help 和 usage error。Typer 不承担项目发现、配置读取、文件发现、scanner 分发或输出投影。
 
-Pydantic v2 承担运行时配置边界。`.foo/config.toml` 来自磁盘，Python type hints 本身不能校验运行时输入。`DiscoveryConfig`、`SourceConfig`、`NormalizedConfig` 和 `CliError` 应通过 Pydantic model 或等价的 Pydantic 校验进入核心层。
+<<pydantic,Pydantic v2>> 承担运行时配置边界。`.foo/config.toml` 来自磁盘，Python type hints 本身不能校验运行时输入。`DiscoveryConfig`、`SourceConfig`、`NormalizedConfig` 和 `CliError` 应通过 Pydantic model 或等价的 Pydantic 校验进入核心层。
 
-tomlkit 承担 TOML 读取和写入。标准库 `tomllib` 只读 TOML，不能满足 `init` 生成配置和 `config print` 输出 TOML 的职责。
+<<tomlkit,tomlkit>> 承担 TOML 读取和写入。标准库 `tomllib` 只读 TOML，不能满足 `init` 生成配置和 `config print` 输出 TOML 的职责。
 
-wcmatch 承担 globstar 和 brace pattern。Rootward 默认 include 包含 `**/*.{md,mdx,rst,adoc,txt}`，Python 标准库 glob 不能完整承载该 surface。
+<<wcmatch,wcmatch>> 承担 globstar 和 brace pattern。Rootward 默认 include 包含 `**/*.{md,mdx,rst,adoc,txt}`，Python 标准库 glob 不能完整承载该 surface。
 
-pathspec 承担 gitignore-style pattern matching。Python discovery 应在 source include/exclude 后应用 pathspec 过滤 `.gitignore`。
+<<pathspec,pathspec>> 承担 gitignore-style pattern matching。Python discovery 应在 source include/exclude 后应用 pathspec 过滤 `.gitignore`。
 
-pytest 承担契约测试。Ruff 承担格式和 lint。ty 承担开发期类型检查。
+<<pytest,pytest>> 承担契约测试。<<ruff,Ruff>> 承担格式和 lint。<<ty,ty>> 承担开发期类型检查。
 
 源码结构固定为：
 
@@ -90,3 +90,5 @@ uv run pytest
 ----
 
 Python 模板不使用 argparse、直接 Click、Black/isort/flake8 组合或只读 `tomllib` 作为核心方案。排除这些对象不是技术偏好陈述，而是为了保持 Rootward 的命令表面、TOML 写入、现代检查和运行时校验边界清楚。
+
+Python 模板的 `run_cli` 应返回结构化运行结果，而不是让 Typer 直接控制进程退出。真实入口负责把 `run_cli` 的 stdout、stderr 和 exit code 投影到进程；测试优先调用 `run_cli`，只在少量集成测试中执行真实入口。该边界与 xref:human-and-json-output[] 的输出规则一致。

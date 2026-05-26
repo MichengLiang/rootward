@@ -28,3 +28,5 @@ foo doctor [--project <path>] [--json] [discovery overrides]
 Rootward 基础命令不是业务工具能力上限。业务工具可以新增命令，但新增命令不得改变基础命令的项目定位、配置读取、文件发现、输出和错误语义。
 
 命令层只承担命令表面。项目发现属于 `core/project`，配置属于 `core/config`，文件发现属于 `core/discovery`，scanner 分发属于 `core/scanners`，输出投影属于 `io/output`。语言实现可以调整模块命名，但不能把这些职责混入命令层。
+
+基础命令之间存在执行依赖。`status` 依赖项目定位和配置读取；`discover` 依赖项目定位、配置读取和文件发现；`scan` 依赖 discover 结果和 scanner registry；`doctor` 依赖配置、source root、scanner registry 和发现状态。命令实现应复用同一 core 模块，而不是为每个命令复制判断逻辑。

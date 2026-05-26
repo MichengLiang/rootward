@@ -23,6 +23,8 @@ Rootward 的构成性条件如下。
 
 这些条件共同定义 Rootward 项目型 CLI 模板。缺少项目根发现，模板无法建立项目语境。缺少项目内配置，工具行为不能随项目复制和审查。缺少 source 声明，文件集合不能成为公共契约。缺少 discover 投影，工具视野不能被验证。缺少稳定 JSON 和错误码，自动化调用方不能可靠消费结果。缺少可测试核心，契约行为不能被持续证明。
 
+构成性条件不是功能清单。功能清单可以随业务工具变化，构成性条件决定一个语言模板是否仍然是 Rootward 模板。业务工具可以替换 scanner、默认 source 和业务命令；替换以后仍必须保留项目语境、配置、发现、投影、错误和测试这些 Rootward 条件。
+
 Rootward 不承担以下对象。
 
 * Rootward 不是通用 CLI framework。
@@ -35,4 +37,4 @@ Rootward 不承担以下对象。
 
 这些对象可以由具体业务工具实现，也可以作为未来期权研究，但它们不进入 Rootward 核心契约。Rootward 的边界使语言模板保持同构，使业务工具能够在清楚的项目语境上继续构造自己的能力。
 
-Rootward 的对象边界在本书中逐层展开。项目语境契约见 xref:tool-identity-and-project-directory[] 至 xref:configuration-model[]；发现与扫描契约见 xref:source-declaration-model[] 至 xref:doctor-diagnostics[]；命令、输出与错误契约见 xref:command-set[] 至 xref:error-codes-and-exit-codes[]；跨语言实现约束见 xref:cross-language-isomorphism[]。
+Rootward 的对象边界在本书中逐层展开。项目语境契约见 xref:tool-identity-and-project-directory[] 至 xref:configuration-model[]；发现与扫描契约见 xref:source-declaration-model[] 至 xref:doctor-diagnostics[]；命令、输出与错误契约见 xref:command-set[] 至 xref:error-codes-and-exit-codes[]；跨语言实现约束见 xref:cross-language-isomorphism[]；边界演进规则见 xref:design-point-admission[] 和 xref:neighbor-objects-and-future-options[]。

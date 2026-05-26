@@ -1,0 +1,40 @@
+[#appendix-f-glossary]
+== 术语表
+
+[cols="1,4",options="header"]
+|===
+| 术语 | 含义
+
+| Rootward 契约
+| 跨语言项目型 CLI 模板共同承载的公共规则集合。该契约定义项目语境、配置、文件发现、scanner 分发、输出投影、错误语义和测试标准。
+
+| 项目型 CLI
+| 在文件系统项目中运行，并以项目根、项目配置和项目目录树为输入语境的命令行人工制品。
+
+| project root
+| Rootward 命令解释配置路径、source root、公共路径和 scanner 输入时使用的项目路径基准。
+
+| `ProjectContext`
+| 项目根发现产生的结构化上下文。它包含 project root、config dir、config path、discovery mode 和 start directory。
+
+| source
+| 进入工具视野的一组文件及其 scanner 分发关系。source 由 id、root、include、exclude 和 scanner 字段定义。
+
+| discovery
+| 把项目语境和规范化配置转换为按 source 分组的 discovered files 的过程。
+
+| scanner registry
+| scanner key 到 scanner implementation 的映射。它是业务处理接入点，不承担项目发现和配置解释。
+
+| projection
+| 内部状态、事件或结果面向消费者的可见表达。Rootward 的投影包括 human output、JSON output、discover 文件列表、doctor diagnostics 和 error object。
+
+| public contract
+| 消费者可以依赖的命令、配置字段、输出形状、错误码、退出码和路径语义。
+
+| project-root-relative POSIX path
+| 相对 project root 的 `/` 分隔路径字符串。Rootward 默认公共投影使用该路径形状，不暴露绝对路径。
+
+| discovery overrides
+| 本次命令执行中覆盖 `[discovery]` 配置的命令行选项，包括 `--no-respect-gitignore`、`--follow-symlinks` 和 `--include-hidden`。
+|===

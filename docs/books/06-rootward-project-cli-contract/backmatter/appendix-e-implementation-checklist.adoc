@@ -24,3 +24,5 @@
 . 人类错误不包含 stack trace。
 . 测试覆盖 xref:test-contract[]。
 . 文档说明语言依赖的 Rootward 职责。
+
+检查失败项不得以“后续补齐”归入完成声明。未满足 Rootward 基础契约的语言实现只能被标记为不完整实现、实验实现或业务草稿，不能被标记为 Rootward 模板完成。

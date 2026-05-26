@@ -7,6 +7,8 @@
 
 公共契约和投影不是内部实现的副产品。它们是 Rootward 人工制品成立的组成部分。项目根发现产生的 `ProjectContext` 只有通过 `status`、JSON 输出、错误 details 或下游命令行为被观察时，才成为可检查对象。文件发现结果只有通过 `discover` 或 scanner 输入被投影时，才能被用户和测试确认。
 
+投影单位必须服务消费者动作。字段、诊断项、输出列、错误 details 和路径字符串进入公共投影以后，消费者会把它们理解为可依赖承诺。公共投影的准入规则见 xref:design-point-admission[]；输出形状见 xref:human-and-json-output[]。
+
 Rootward 的完成声明必须回到公共契约。一个语言模板能够启动进程、显示帮助文本或执行单个命令，不足以证明模板完成。模板完成必须满足以下条件。
 
 * 初始化结构符合 xref:initialization-contract[]。

@@ -72,3 +72,7 @@ usage error 测试：
 测试 fixture 必须位于当前项目或模板目录内部。测试不得跨盘扫描系统目录、用户目录或工作区外路径。临时项目应创建在模板项目内的 `temporary/`、`tmp/` 或语言测试框架提供的受控临时目录中。
 
 每种语言可以使用不同测试工具。TypeScript 使用 Vitest，Python 使用 pytest，Rust 使用 assert_cmd/assert_fs/insta，Go 使用标准 testing。工具差异不能改变测试覆盖的 Rootward 行为。
+
+测试断言应优先使用公共契约面。JSON 测试断言 `ok`、`data`、`error.code`、`details` 和 project-root-relative POSIX path；human output 测试只断言关键公共文本和不含 stack trace；内部函数测试只服务无法通过公共命令稳定观察的路径规则、配置校验和错误映射。
+
+测试应证明负路径稳定。`PROJECT_NOT_FOUND`、`PROJECT_CONFIG_NOT_FOUND`、`CONFIG_PARSE_FAILED`、`CONFIG_INVALID`、`SOURCE_NOT_FOUND`、`SOURCE_ROOT_NOT_FOUND`、`SCANNER_NOT_REGISTERED`、`DISCOVERY_FAILED` 或 `SCAN_FAILED` 的触发条件一旦进入契约，就必须有对应断言。没有测试的错误码会退化为文档承诺。

@@ -46,6 +46,8 @@ JSON 失败输出固定为：
 
 成功 JSON 写入 stdout。失败 JSON 写入 stderr。该规则使脚本能够把成功数据流和失败诊断流分开处理。
 
+`details` 字段在没有结构化上下文时可以省略。存在 `details` 时，它必须是 JSON object。语言实现不得把 stack trace、未结构化错误文本或语言原生异常对象直接放入 `details`。
+
 人类输出服务终端阅读。人类输出可以使用摘要表、分组列表或 TOML 文本。机器消费者不得解析人类输出。机器消费者必须使用 `--json`。
 
 人类错误输出不暴露内部 stack trace。普通错误输出包含错误 code、message 和必要 details。内部调试信息不进入 Rootward 默认公共输出。
@@ -61,3 +63,5 @@ JSON 失败输出固定为：
 `doctor` 人类输出应投影整体状态和诊断项。诊断项至少包含 level、code、source id 和 message。
 
 输出投影是公共契约。新增 JSON 字段、删除 JSON 字段、改变错误 envelope、改变路径格式和改变 stdout/stderr 归属，都会影响消费者，必须经过 xref:design-point-admission[] 的准入判断。
+
+JSON 字段命名属于公共契约。Rootward 默认使用 lower camel case 的结构化字段，例如 `projectRoot`、`configPath`、`totalFiles` 和 `sourceId`。配置文件仍使用 TOML snake_case 字段，例如 `respect_gitignore`。语言实现不得把本语言命名习惯泄漏为 JSON 公共字段。

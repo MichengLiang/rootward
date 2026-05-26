@@ -34,3 +34,5 @@ Rootward 的本体是项目型 CLI 契约，不是任意一种语言实现。Typ
 语言实现章节不提供通用编程教程。它们定义每个依赖在 Rootward 中承担的对象责任。实现者需要阅读相应语言官方文档来掌握 API，但不能用官方文档中的默认习惯覆盖 Rootward 契约。
 
 新增语言模板必须先满足本章同构原则。语言生态中的常见做法只有在不破坏 Rootward 公共契约时，才能进入该语言模板。
+
+跨语言同构通过测试和附录清单持续检查。测试行为见 xref:test-contract[]；契约压缩清单见 xref:appendix-a-contract-checklist[]；语言依赖职责见 xref:appendix-d-language-dependency-table[]。语言实现章节只能细化这些对象，不能重新定义它们。

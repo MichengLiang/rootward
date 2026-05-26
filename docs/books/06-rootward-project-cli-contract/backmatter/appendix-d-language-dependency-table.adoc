@@ -89,3 +89,5 @@
 | go-billy/osfs
 | go-git ignore 读取所需的文件系统适配。
 |===
+
+依赖表只列 Rootward 模板层依赖。业务工具可以增加业务 parser、远程客户端、数据库驱动或 UI 依赖；新增依赖必须通过 xref:design-point-admission[] 判断其层位。

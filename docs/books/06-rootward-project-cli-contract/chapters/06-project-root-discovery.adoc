@@ -35,3 +35,5 @@ type ProjectContext = {
 所有需要项目语境的命令必须通过同一个项目定位模块。命令层不直接拼接 `.foo/config.toml`。该规则防止不同命令拥有不同项目解释。
 
 项目根发现是路径规则的前置条件。source root、include/exclude、public path、scanner 输入和错误 details 都必须在同一 `ProjectContext` 下解释。
+
+项目根发现不读取业务文件，也不解释 source 配置。它只判定项目语境是否存在，并产生后续模块共享的路径基准。配置读取见 xref:configuration-model[]，文件发现见 xref:file-discovery-semantics[]。

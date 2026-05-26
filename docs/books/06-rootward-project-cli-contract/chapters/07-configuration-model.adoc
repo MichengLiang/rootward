@@ -30,6 +30,8 @@ scanner = "text"
 
 `sources` 表数组声明扫描源。source 字段语义在 xref:source-declaration-model[] 中定义。
 
+缺失 `[discovery]` 表时，语言实现必须填充内置 discovery defaults。缺失 `exclude` 字段时，语言实现必须填充空数组。`sources` 表数组不能为空；没有 source 的配置不能产生可审查的文件集合。
+
 Rootward 的规范化配置形状如下。
 
 [source,ts]
@@ -63,3 +65,5 @@ source root 不能包含 `..` 越界片段。source root 必须留在 project ro
 glob pattern 使用 `/` 作为路径分隔符。Windows 路径在内部规范化为 POSIX 风格相对路径。配置文件不接受反斜杠作为 glob 分隔符。
 
 命令行覆盖可以修改本次执行中的 discovery 行为。覆盖优先级见 xref:command-line-overrides[]。命令行覆盖不修改 `.foo/config.toml`。
+
+配置解析失败和配置校验失败必须分离。TOML 语法错误返回 `CONFIG_PARSE_FAILED`；字段类型、缺失必需字段、重复 source id、绝对 source root、越界 source root 和非法 source id 返回 `CONFIG_INVALID`。错误码完整表见 xref:error-codes-and-exit-codes[]。

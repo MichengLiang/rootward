@@ -26,6 +26,8 @@ type ScannerRegistry = Record<string, Scanner>;
 
 scanner 消费 `DiscoveredSource`。它不处理项目根发现，不加载配置，不展开 glob，不应用 `.gitignore`，不决定 hidden 或 symlink 规则。
 
+scanner 可以读取文件内容，可以执行业务解析，可以产生业务统计。scanner 不能改变 discovered files，也不能把未发现文件私自加入当前 source。需要额外输入通道的业务工具必须定义独立命令或独立配置字段，并经过 xref:design-point-admission[]。
+
 source 指向未注册 scanner 时，`scan` 返回 `SCANNER_NOT_REGISTERED`。`doctor` 把同一问题报告为 error 诊断项。
 
 Rootward 模板默认注册 `text` 和 `python` 两个 scanner key。两者在模板中可以使用同一个基础文本扫描实现，统计文件数、字节数和行数。该默认实现证明 registry 分发结构成立，不表达完整 Markdown、Python、RST 或 AsciiDoc 解析能力。

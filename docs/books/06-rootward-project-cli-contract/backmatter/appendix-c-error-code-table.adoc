@@ -53,3 +53,5 @@
 | `5`
 | scanner 执行失败。维护者需要检查 scanner 实现或输入文件。
 |===
+
+错误对象结构、退出码分层和诊断 code 边界见 xref:error-codes-and-exit-codes[]。

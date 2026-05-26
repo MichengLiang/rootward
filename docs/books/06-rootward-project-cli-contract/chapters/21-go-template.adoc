@@ -16,13 +16,13 @@ require (
 )
 ----
 
-Cobra 承担命令表面。它负责 subcommand、flags、help 和 usage error。Go 模板不使用 Viper，因为 Rootward 的配置来源必须固定为项目内 `.foo/config.toml`；多来源配置会扩大公共契约。
+<<cobra,Cobra>> 承担命令表面。它负责 subcommand、flags、help 和 usage error。Go 模板不使用 Viper，因为 Rootward 的配置来源必须固定为项目内 `.foo/config.toml`；多来源配置会扩大公共契约。
 
-go-toml/v2 承担 TOML 解析和序列化。它服务配置读取、默认配置生成和 `config print`。
+<<go-toml,go-toml/v2>> 承担 TOML 解析和序列化。它服务配置读取、默认配置生成和 `config print`。
 
-gobwas/glob 承担 globstar 和 brace alternatives。Rootward 默认 include 包含 `**` 和 `{md,mdx,rst,adoc,txt}`，Go 标准库 `filepath.Match` 不能完整承载该 surface。
+<<gobwas-glob,gobwas/glob>> 承担 globstar 和 brace alternatives。Rootward 默认 include 包含 `**` 和 `{md,mdx,rst,adoc,txt}`，Go 标准库 `filepath.Match` 不能完整承载该 surface。
 
-go-git 的 gitignore 包承担 `.gitignore` pattern matching。go-billy/osfs 提供 go-git ignore 读取所需的文件系统适配。
+<<go-git-ignore,go-git 的 gitignore 包>>承担 `.gitignore` pattern matching。go-billy/osfs 提供 go-git ignore 读取所需的文件系统适配。
 
 Go 标准库 `encoding/json` 承担 JSON 输出。标准库 `testing`、`t.TempDir()`、`os` 和 `exec` 承担测试。Go 模板不引入第三方测试框架。
 
@@ -70,3 +70,5 @@ go build ./cmd/foo
 ----
 
 Go 模板不使用标准库 `flag` 作为基础命令层，因为 Rootward 有稳定子命令树和二级命令 `config print`。Go 模板不使用 Viper，不使用反射 validator，不使用第三方测试 DSL。
+
+Go 模板的 Cobra command 应把解析后的参数转换为 Rootward command options，再调用 `internal/core` 或 `internal/commands`。Cobra 不直接写 stdout/stderr，不直接读取 `.foo/config.toml`，也不直接展开 glob。该边界使 Go 实现与 xref:cross-language-isomorphism[] 保持同构。

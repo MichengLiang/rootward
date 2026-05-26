@@ -110,5 +110,8 @@ include::backmatter/appendix-d-language-dependency-table.adoc[]
 [appendix]
 include::backmatter/appendix-e-implementation-checklist.adoc[]
 
+[appendix]
+include::backmatter/appendix-f-glossary.adoc[]
+
 [bibliography]
 include::backmatter/bibliography.adoc[]

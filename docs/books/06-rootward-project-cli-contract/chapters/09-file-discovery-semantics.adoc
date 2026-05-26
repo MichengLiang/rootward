@@ -46,6 +46,12 @@ type DiscoveredSource = {
 
 `--source <id>` 指向不存在的 source 时返回 `SOURCE_NOT_FOUND`。source root 不存在或不是目录时返回 `SOURCE_ROOT_NOT_FOUND`。glob 展开、gitignore 读取或路径规范化失败时返回 `DISCOVERY_FAILED`。
 
+发现步骤中的路径基准必须保持一致。`source.root` 相对 project root 解释；`include` 和 `exclude` 相对 source root 解释；返回路径相对 project root 表达。该规则使 `docs/index.md` 这类公共路径能同时服务 JSON 输出、scanner 输入、测试断言和错误 details。
+
+隐藏路径判断使用 project-root-relative POSIX path。`include_hidden = false` 时，路径任意 segment 以 `.` 开头的文件或目录都不进入 discovered files。该规则使 `.git/`、`.foo/`、`.venv/` 和 `docs/.draft.md` 在默认发现中保持不可见。
+
+符号链接规则服务项目边界。`follow_symlinks = false` 时，发现过程不跟随 symlink，也不把 symlink file 当成普通业务文件。`follow_symlinks = true` 时，语言实现仍必须防止循环、越界和重复路径污染公共结果。
+
 source 匹配为空时，`discover` 返回成功并显示 `0 files`。空 source 是合法状态。`doctor` 会把空 source 报告为 warning，见 xref:doctor-diagnostics[]。
 
 Rootward 规定发现结果，不规定某个语言必须使用同一个遍历库。TypeScript 模板使用 globby；Python 模板使用 wcmatch 和 pathspec；Rust 模板使用 ignore crate；Go 模板使用 `filepath.WalkDir`、gobwas/glob 和 go-git gitignore。语言实现可以不同，公共路径形状和错误语义必须相同。

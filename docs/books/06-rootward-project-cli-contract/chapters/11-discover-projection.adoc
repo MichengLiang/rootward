@@ -27,3 +27,5 @@ discovery overrides 包括 `--no-respect-gitignore`、`--follow-symlinks` 和 `-
 `discover` 的职责是投影工具视野。没有 discover，用户只能通过最终业务结果推测配置是否生效、ignore 是否生效、hidden 文件是否被排除、source root 是否正确。discover 把这些推测转化为可检查投影。
 
 `discover` 不运行 scanner。需要消费 scanner registry 的命令是 `scan`，见 xref:scanner-registry[] 和 xref:command-set[]。
+
+`discover` 的输出不承诺业务解析结果。文件是否存在、是否进入 source、使用哪个 scanner，是 discover 的公共对象；文件内容是否符合某个业务规则，是 scanner 或业务命令的公共对象。

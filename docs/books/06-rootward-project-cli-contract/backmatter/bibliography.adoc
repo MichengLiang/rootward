@@ -4,15 +4,20 @@
 * [[[zod]]] Zod: https://zod.dev/
 * [[[smol-toml]]] smol-toml: https://www.npmjs.com/package/smol-toml
 * [[[globby]]] globby: https://www.npmjs.com/package/globby
+* [[[vitest]]] Vitest: https://vitest.dev/
+* [[[tsdown]]] tsdown: https://tsdown.dev/
+* [[[biome]]] Biome: https://biomejs.dev/
 * [[[uv]]] uv: https://docs.astral.sh/uv/
 * [[[typer]]] Typer: https://github.com/fastapi/typer
 * [[[pydantic]]] Pydantic: https://pydantic.dev/
 * [[[tomlkit]]] tomlkit: https://tomlkit.readthedocs.io/
 * [[[wcmatch]]] wcmatch: https://facelessuser.github.io/wcmatch/
 * [[[pathspec]]] pathspec: https://pypi.org/project/pathspec/
+* [[[pytest]]] pytest: https://docs.pytest.org/
 * [[[ruff]]] Ruff: https://docs.astral.sh/ruff/
 * [[[ty]]] ty: https://docs.astral.sh/ty/
 * [[[clap]]] clap: https://docs.rs/clap/
+* [[[serde]]] serde: https://serde.rs/
 * [[[rust-ignore]]] ignore crate: https://docs.rs/ignore/
 * [[[rust-toml]]] toml crate: https://docs.rs/toml/
 * [[[thiserror]]] thiserror: https://docs.rs/thiserror/
