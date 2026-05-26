@@ -1,0 +1,19 @@
+= Rootward CLI Templates
+弥澄亮 <t103ooooo@stu.mju.edu.cn>
+v0.1, 2026-05
+:toc: left
+:toclevels: 2
+:icons: font
+:experimental:
+:idprefix:
+:idseparator: -
+
+Rootward 是一套跨语言项目型 CLI 模板契约。本文档工作区维护 Rootward 的书籍化契约说明。
+
+== 书目
+
+* xref:books/06-rootward-project-cli-contract/book.adoc[Rootward 项目型 CLI 契约]
+
+== 文档边界
+
+本工作区保留书籍化契约文档、构建脚本、共享属性和本地测试。`tmp/` 用于临时资料，不进入版本控制。HTML 构建产物位于 `build/`，不进入版本控制。

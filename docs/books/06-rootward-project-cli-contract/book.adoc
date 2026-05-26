@@ -1,0 +1,114 @@
+= Rootward 项目型 CLI 契约
+弥澄亮 <t103ooooo@stu.mju.edu.cn>
+v0.1, 2026-05
+:doctype: book
+:toc: left
+:toclevels: 3
+:sectnums:
+:icons: font
+:experimental:
+:idprefix:
+:idseparator: -
+
+include::../../shared/attributes.adoc[]
+
+[preface]
+include::frontmatter/preface.adoc[]
+
+= 第一部：Rootward 的对象
+
+[partintro]
+第一部定义 Rootward 的问题世界、人工制品边界、公共契约、投影和完成标准。
+
+include::chapters/01-project-cli-problem-world.adoc[]
+
+include::chapters/02-rootward-artifact-boundary.adoc[]
+
+include::chapters/03-public-contracts-projections-completion.adoc[]
+
+= 第二部：项目语境契约
+
+[partintro]
+第二部定义工具身份、初始化结构、项目根发现和项目内配置模型。
+
+include::chapters/04-tool-identity-and-project-directory.adoc[]
+
+include::chapters/05-initialization-contract.adoc[]
+
+include::chapters/06-project-root-discovery.adoc[]
+
+include::chapters/07-configuration-model.adoc[]
+
+= 第三部：发现、扫描与诊断
+
+[partintro]
+第三部定义 source 声明、文件发现、scanner registry、discover 投影和 doctor 诊断。
+
+include::chapters/08-source-declaration-model.adoc[]
+
+include::chapters/09-file-discovery-semantics.adoc[]
+
+include::chapters/10-scanner-registry.adoc[]
+
+include::chapters/11-discover-projection.adoc[]
+
+include::chapters/12-doctor-diagnostics.adoc[]
+
+= 第四部：命令、输出与错误
+
+[partintro]
+第四部定义命令集合、命令行覆盖、人类输出、JSON 输出、错误码和退出码。
+
+include::chapters/13-command-set.adoc[]
+
+include::chapters/14-command-line-overrides.adoc[]
+
+include::chapters/15-human-and-json-output.adoc[]
+
+include::chapters/16-error-codes-and-exit-codes.adoc[]
+
+= 第五部：跨语言实现
+
+[partintro]
+第五部定义跨语言同构原则，并说明 TypeScript、Python、Rust 和 Go 模板如何承载同一契约。
+
+include::chapters/17-cross-language-isomorphism.adoc[]
+
+include::chapters/18-typescript-template.adoc[]
+
+include::chapters/19-python-template.adoc[]
+
+include::chapters/20-rust-template.adoc[]
+
+include::chapters/21-go-template.adoc[]
+
+= 第六部：验证、演进与边界控制
+
+[partintro]
+第六部定义测试契约、设计点准入规则、模板复制责任、相邻对象和未来期权。
+
+include::chapters/22-test-contract.adoc[]
+
+include::chapters/23-design-point-admission.adoc[]
+
+include::chapters/24-template-copy-responsibilities.adoc[]
+
+include::chapters/25-neighbor-objects-and-future-options.adoc[]
+
+[appendix]
+include::backmatter/appendix-a-contract-checklist.adoc[]
+
+[appendix]
+include::backmatter/appendix-b-default-config.adoc[]
+
+[appendix]
+include::backmatter/appendix-c-error-code-table.adoc[]
+
+[appendix]
+include::backmatter/appendix-d-language-dependency-table.adoc[]
+
+[appendix]
+include::backmatter/appendix-e-implementation-checklist.adoc[]
+
+[bibliography]
+include::backmatter/bibliography.adoc[]

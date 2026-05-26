@@ -1,0 +1,26 @@
+[#appendix-e-implementation-checklist]
+== 实现者检查表
+
+实现某个 Rootward 语言模板时，按以下顺序检查。
+
+. 工具身份已替换。
+. 包元数据已替换。
+. `init` 创建结构正确。
+. 默认配置与 xref:appendix-b-default-config[] 一致，或业务模板明确替换默认 source。
+. 项目根发现只包含显式项目根和 CWD 向上发现。
+. 配置解析错误映射到 `CONFIG_PARSE_FAILED`。
+. 配置 schema 和语义错误映射到 `CONFIG_INVALID`。
+. source root 校验禁止绝对路径和越界路径。
+. 文件发现输出 project-root-relative POSIX path。
+. `.gitignore` 默认生效。
+. hidden path 默认排除。
+. symlink 默认不跟随。
+. `discover --list` 能列出文件。
+. `scan` 使用 scanner registry。
+. 未注册 scanner 返回 `SCANNER_NOT_REGISTERED`。
+. `doctor` 保留 diagnostics。
+. JSON success 和 failure envelope 稳定。
+. 失败 JSON 写 stderr。
+. 人类错误不包含 stack trace。
+. 测试覆盖 xref:test-contract[]。
+. 文档说明语言依赖的 Rootward 职责。

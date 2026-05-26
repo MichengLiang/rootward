@@ -1,0 +1,19 @@
+{
+  "name": "rootward-cli-templates",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "build:catalog": "asciidoctor catalog.adoc -D build/html",
+    "build:books": "node scripts/build-books.mjs",
+    "copy:assets": "node scripts/copy-assets.mjs",
+    "enhance:html": "node scripts/add-home-links.mjs build/html",
+    "check:html": "node scripts/check-html-local-resources.mjs build/html",
+    "build": "pnpm run build:catalog && pnpm run build:books && pnpm run copy:assets && pnpm run enhance:html && pnpm run check:html"
+  },
+  "devDependencies": {
+    "@asciidoctor/cli": "4.0.0",
+    "asciidoctor": "3.0.4"
+  }
+}

@@ -1,0 +1,43 @@
+[#template-copy-responsibilities]
+== 复制模板后的替换责任
+
+Rootward 模板是业务工具的起点。复制模板创建具体工具时，维护者必须替换工具身份、业务 source、scanner 和文档表面，同时保留 Rootward 基础契约。
+
+必须替换的对象包括：
+
+* package name、crate name、module path 或 distribution name。
+* CLI name。
+* config directory name。
+* README 中的命令名、配置目录和示例。
+* 测试断言中的命令名和配置目录。
+* 默认 source 配置。
+* scanner registry 中的业务 scanner。
+* 包发布元数据和 license 信息。
+
+可以替换的对象包括：
+
+* 默认 source 列表。
+* 默认 scanner 实现。
+* 业务命令集合。
+* 人类输出中的业务说明。
+* README 的业务教程部分。
+
+不应改变的对象包括：
+
+* `init` 创建隐藏目录、config、cache 和 state 的结构。
+* 显式项目根和 CWD 向上发现语义。
+* `.foo/config.toml` 作为唯一默认项目配置来源的规则。
+* `[discovery]` 字段语义。
+* source 字段语义。
+* project-root-relative POSIX path 投影。
+* JSON envelope。
+* Rootward 基础错误码和退出码。
+* scanner 不重新解释配置和 glob 的边界。
+
+业务工具可以新增配置字段，但新增字段属于业务工具契约。新增字段不得改变 Rootward 基础字段语义。业务工具可以新增 error code，但不得改变 Rootward 基础错误码的触发条件。
+
+业务工具可以替换默认 source。替换 source 不改变 source 模型。`id` 仍是稳定标识，`root` 仍相对 project root，include/exclude 仍相对 source root，scanner 仍指向 registry key。
+
+业务工具可以扩展 doctor。扩展诊断项必须明确 level、code、message 和阻断语义。业务诊断不能让 Rootward 层诊断消失。
+
+复制模板后的第一组测试应先证明 Rootward 基础契约仍成立，再证明业务能力成立。业务测试不能替代 Rootward 契约测试。

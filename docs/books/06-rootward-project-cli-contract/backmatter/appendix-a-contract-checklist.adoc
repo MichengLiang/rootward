@@ -1,0 +1,28 @@
+[#appendix-a-contract-checklist]
+== Rootward Contract 清单
+
+语言模板符合 Rootward 契约时，应满足以下清单。
+
+* 提供稳定 CLI name。
+* 提供稳定 config directory name。
+* `init` 创建 `.foo/config.toml`、`.foo/cache/.gitignore` 和 `.foo/state/.gitignore`。
+* 项目命令支持 `--project <path>`。
+* 无 `--project` 时从 CWD 向上寻找 `.foo/config.toml`。
+* 配置使用 TOML。
+* 配置包含 `[discovery]` 表和 `sources` 表数组。
+* source id 唯一，并符合 CLI 标识符规则。
+* source root 相对 project root，且不能越界。
+* include/exclude 相对 source root。
+* 文件发现默认尊重 `.gitignore`。
+* 文件发现默认不跟随 symlink。
+* 文件发现默认不包含 hidden path。
+* 发现结果使用 project-root-relative POSIX path。
+* scanner registry 按 source scanner key 分发。
+* scanner 不重新解释项目发现和配置。
+* 提供 `status`、`discover`、`scan`、`config print` 和 `doctor`。
+* JSON success 使用 `{ "ok": true, "data": ... }`。
+* JSON failure 使用 `{ "ok": false, "error": ... }`。
+* 错误 code 稳定。
+* 退出码稳定。
+* 人类错误输出不暴露 stack trace。
+* 测试覆盖 xref:test-contract[] 中的行为。

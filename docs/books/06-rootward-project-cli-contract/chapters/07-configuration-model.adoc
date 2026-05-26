@@ -1,0 +1,65 @@
+[#configuration-model]
+== 配置模型
+
+`.foo/config.toml` 是 Rootward 工具项目配置的唯一默认来源。配置文件使用 TOML。路径字段按 project root 解释，不按 `.foo` 目录解释。
+
+配置顶层包含 `[discovery]` 表和 `sources` 表数组。
+
+[source,toml]
+----
+[discovery]
+respect_gitignore = true
+follow_symlinks = false
+include_hidden = false
+
+[[sources]]
+id = "docs"
+root = "docs"
+include = ["**/*.{md,mdx,rst,adoc,txt}"]
+exclude = []
+scanner = "text"
+----
+
+`[discovery]` 固定文件发现全局行为。
+
+`respect_gitignore` 控制文件发现是否尊重项目 `.gitignore`。默认值是 `true`。被版本控制明确排除的路径通常承载依赖、构建产物、缓存、虚拟环境和工具状态；默认扫描这些路径会造成性能问题和语义污染。
+
+`follow_symlinks` 控制文件发现是否跟随符号链接。默认值是 `false`。符号链接可以跨出项目边界，也可以形成循环。项目型 CLI 默认不跨越这种边界。
+
+`include_hidden` 控制是否扫描隐藏文件和隐藏目录。默认值是 `false`。隐藏路径通常承载 VCS、编辑器、工具配置和缓存等项目管理对象。业务文件位于隐藏路径时，用户通过配置或命令行覆盖显式开启。
+
+`sources` 表数组声明扫描源。source 字段语义在 xref:source-declaration-model[] 中定义。
+
+Rootward 的规范化配置形状如下。
+
+[source,ts]
+----
+type NormalizedConfig = {
+  discovery: {
+    respectGitignore: boolean;
+    followSymlinks: boolean;
+    includeHidden: boolean;
+  };
+  sources: Array<{
+    id: string;
+    root: string;
+    include: string[];
+    exclude: string[];
+    scanner: string;
+  }>;
+};
+----
+
+配置 schema 必须在运行时校验。TypeScript 类型、Python type hints、Rust struct 和 Go struct 都不能替代运行时输入校验。TOML 来自磁盘，必须经过解析、结构校验和语义校验，才能进入 `NormalizedConfig`。
+
+source id 必须匹配 CLI 标识符规则：以字母开头，只包含字母、数字、短横线和下划线。该规则使 `--source docs`、JSON key、日志消息和测试断言保持稳定。
+
+source id 必须在同一配置文件中唯一。重复 id 返回 `CONFIG_INVALID`。
+
+source root 不能是绝对路径。项目配置描述项目内部文件集合，绝对路径会把项目行为绑定到某台机器。
+
+source root 不能包含 `..` 越界片段。source root 必须留在 project root 内部。
+
+glob pattern 使用 `/` 作为路径分隔符。Windows 路径在内部规范化为 POSIX 风格相对路径。配置文件不接受反斜杠作为 glob 分隔符。
+
+命令行覆盖可以修改本次执行中的 discovery 行为。覆盖优先级见 xref:command-line-overrides[]。命令行覆盖不修改 `.foo/config.toml`。

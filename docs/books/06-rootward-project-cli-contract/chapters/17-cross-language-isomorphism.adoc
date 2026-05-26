@@ -1,0 +1,36 @@
+[#cross-language-isomorphism]
+== 跨语言同构原则
+
+Rootward 的本体是项目型 CLI 契约，不是任意一种语言实现。TypeScript、Python、Rust 和 Go 模板必须共享同一组公共行为，并允许各语言使用符合自身生态的实现工具。
+
+跨语言必须同构的对象包括：
+
+* 命令集合和命令职责。
+* 项目根发现语义。
+* `.foo/config.toml` 配置模型。
+* `[discovery]` 表和 `sources` 表数组的字段语义。
+* source id、source root 和 glob 路径规则。
+* 文件发现结果的 project-root-relative POSIX path。
+* scanner registry 的边界。
+* `discover`、`status`、`config print`、`scan` 和 `doctor` 的公共投影。
+* JSON success 和 failure envelope。
+* 错误码和退出码。
+* 测试契约。
+
+跨语言允许差异的对象包括：
+
+* 命令行解析库。
+* TOML 解析和序列化库。
+* 运行时 schema 或语义校验方式。
+* 文件遍历和 glob 库。
+* gitignore 实现库。
+* 内部路径类型。
+* 内部错误类型。
+* 测试框架和构建命令。
+* 包管理和发布元数据。
+
+允许差异不能改变公共契约。Python 的 Typer、Rust 的 clap、Go 的 Cobra 和 TypeScript 的 Commander 都只承担命令表面。它们不能改变 Rootward 的命令语义、错误码、JSON envelope 或项目发现规则。
+
+语言实现章节不提供通用编程教程。它们定义每个依赖在 Rootward 中承担的对象责任。实现者需要阅读相应语言官方文档来掌握 API，但不能用官方文档中的默认习惯覆盖 Rootward 契约。
+
+新增语言模板必须先满足本章同构原则。语言生态中的常见做法只有在不破坏 Rootward 公共契约时，才能进入该语言模板。

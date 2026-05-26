@@ -1,0 +1,7 @@
+node_modules/
+build/
+tmp/
+
+docs/node_modules/
+docs/build/
+docs/tmp/

@@ -1,0 +1,72 @@
+[#go-template]
+== Go 模板实现
+
+Go 模板使用 Go modules、Cobra、go-toml/v2、gobwas/glob、go-git gitignore、go-billy/osfs 和标准 testing。该组合承载 Rootward 的平台工具语境，并保持 Go 原生构建和测试工作流。
+
+依赖形状如下。
+
+[source,go]
+----
+require (
+    github.com/spf13/cobra v1
+    github.com/pelletier/go-toml/v2 v2
+    github.com/gobwas/glob v0.2.3
+    github.com/go-git/go-git/v5 v5
+    github.com/go-git/go-billy/v5 v5
+)
+----
+
+Cobra 承担命令表面。它负责 subcommand、flags、help 和 usage error。Go 模板不使用 Viper，因为 Rootward 的配置来源必须固定为项目内 `.foo/config.toml`；多来源配置会扩大公共契约。
+
+go-toml/v2 承担 TOML 解析和序列化。它服务配置读取、默认配置生成和 `config print`。
+
+gobwas/glob 承担 globstar 和 brace alternatives。Rootward 默认 include 包含 `**` 和 `{md,mdx,rst,adoc,txt}`，Go 标准库 `filepath.Match` 不能完整承载该 surface。
+
+go-git 的 gitignore 包承担 `.gitignore` pattern matching。go-billy/osfs 提供 go-git ignore 读取所需的文件系统适配。
+
+Go 标准库 `encoding/json` 承担 JSON 输出。标准库 `testing`、`t.TempDir()`、`os` 和 `exec` 承担测试。Go 模板不引入第三方测试框架。
+
+源码结构固定为：
+
+[source,text]
+----
+cmd/foo/main.go
+internal/cli/cli.go
+internal/commands/
+  init.go
+  status.go
+  discover.go
+  scan.go
+  config_print.go
+  doctor.go
+  shared.go
+internal/core/
+  constants.go
+  errors.go
+  result.go
+  project.go
+  config.go
+  discovery.go
+  scanners.go
+internal/io/
+  filesystem.go
+  output.go
+----
+
+`cmd/foo/main.go` 是真实进程入口。`internal/cli` 组装 Cobra command tree。`internal/core` 承担 Rootward 契约。`internal/io` 承担文件系统和输出投影。
+
+Go 配置校验采用手写 `Validate()`。配置字段有限，手写语义能直接表达 source id、重复 id、root 相对路径和 root 不越界规则，不需要反射 validator。
+
+Go 错误模型使用自定义结构体。`CliError` 固定 code、message 和 details；`Failure` 固定 error 和 exit code。Cobra error 不直接成为公共错误。
+
+验证命令固定为：
+
+[source,bash]
+----
+gofmt -w .
+go test ./...
+go vet ./...
+go build ./cmd/foo
+----
+
+Go 模板不使用标准库 `flag` 作为基础命令层，因为 Rootward 有稳定子命令树和二级命令 `config print`。Go 模板不使用 Viper，不使用反射 validator，不使用第三方测试 DSL。

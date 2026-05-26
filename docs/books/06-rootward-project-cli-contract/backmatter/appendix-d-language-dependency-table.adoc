@@ -1,0 +1,91 @@
+[#appendix-d-language-dependency-table]
+== 语言依赖表
+
+[cols="1,2,4",options="header"]
+|===
+| 语言 | 依赖 | Rootward 职责
+
+| TypeScript
+| Commander
+| 命令表面。
+
+| TypeScript
+| Zod
+| 运行时 schema 校验。
+
+| TypeScript
+| smol-toml
+| TOML 解析和序列化。
+
+| TypeScript
+| globby
+| glob 展开和 gitignore-aware 文件发现。
+
+| Python
+| uv
+| 项目管理、依赖同步和命令运行。
+
+| Python
+| Typer
+| 命令表面。
+
+| Python
+| Pydantic v2
+| 运行时配置边界。
+
+| Python
+| tomlkit
+| TOML 读取和写入。
+
+| Python
+| wcmatch
+| globstar 和 brace pattern。
+
+| Python
+| pathspec
+| gitignore-style pattern matching。
+
+| Rust
+| clap derive
+| 命令表面。
+
+| Rust
+| serde / serde_json
+| 配置、诊断、JSON envelope 和结构化输出。
+
+| Rust
+| toml
+| TOML 解析和序列化。
+
+| Rust
+| ignore
+| gitignore-aware 文件发现。
+
+| Rust
+| thiserror
+| 内部错误类型到稳定错误码的映射。
+
+| Rust
+| camino
+| UTF-8 路径投影。
+
+| Go
+| Cobra
+| 命令表面。
+
+| Go
+| go-toml/v2
+| TOML 解析和序列化。
+
+| Go
+| gobwas/glob
+| globstar 和 brace alternatives。
+
+| Go
+| go-git gitignore
+| gitignore pattern matching。
+
+| Go
+| go-billy/osfs
+| go-git ignore 读取所需的文件系统适配。
+|===

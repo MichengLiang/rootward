@@ -1,0 +1,23 @@
+[#public-contracts-projections-completion]
+== 公共契约、投影与完成标准
+
+公共契约（public contract）是 Rootward 模板对消费者提供的可依赖承诺。消费者包括终端用户、脚本、CI、编辑器集成、业务工具开发者和模板维护者。消费者能够依赖的命令、配置字段、输出形状、错误码、退出码和路径语义，都属于公共契约。
+
+投影（projection）是内部状态、事件或结果面向消费者的可见表达。Rootward 的投影包括人类输出、JSON 输出、discover 文件列表、doctor 诊断项、status 项目摘要、config print 规范化配置和错误对象。
+
+公共契约和投影不是内部实现的副产品。它们是 Rootward 人工制品成立的组成部分。项目根发现产生的 `ProjectContext` 只有通过 `status`、JSON 输出、错误 details 或下游命令行为被观察时，才成为可检查对象。文件发现结果只有通过 `discover` 或 scanner 输入被投影时，才能被用户和测试确认。
+
+Rootward 的完成声明必须回到公共契约。一个语言模板能够启动进程、显示帮助文本或执行单个命令，不足以证明模板完成。模板完成必须满足以下条件。
+
+* 初始化结构符合 xref:initialization-contract[]。
+* 项目根发现符合 xref:project-root-discovery[]。
+* 配置读取与校验符合 xref:configuration-model[]。
+* source 声明和文件发现符合 xref:source-declaration-model[] 与 xref:file-discovery-semantics[]。
+* scanner 分发符合 xref:scanner-registry[]。
+* 命令集合符合 xref:command-set[]。
+* JSON 输出、人类输出、错误码和退出码符合 xref:human-and-json-output[] 与 xref:error-codes-and-exit-codes[]。
+* 测试覆盖 xref:test-contract[] 中的契约行为。
+
+实现物能运行只证明实现物存在。Rootward 模板完成需要证明同一公共契约在该语言中成立。TypeScript、Python、Rust 和 Go 可以采用不同依赖、路径类型、错误类型和测试工具，但它们必须暴露同一命令语义、同一配置语义、同一 JSON envelope 和同一错误语义。
+
+公共投影中的每个单位都需要消费者动作授权。`discover --list` 的文件路径服务用户确认工具视野；`doctor` 的诊断级别服务用户判断项目语境是否阻断其他命令；JSON `error.code` 服务脚本分支；`status` 的 discovery mode 服务用户确认项目定位来源。不能改变消费者判断、选择、操作或验证的输出单位，不应进入 Rootward 公共投影。

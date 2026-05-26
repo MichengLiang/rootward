@@ -1,0 +1,111 @@
+[#error-codes-and-exit-codes]
+== 错误码与退出码
+
+Rootward 错误对象固定为：
+
+[source,ts]
+----
+type CliError = {
+  code: CliErrorCode;
+  message: string;
+  details?: Record<string, unknown>;
+};
+----
+
+`code` 面向程序。自动化调用方使用它判断错误类型。
+
+`message` 面向人类。程序不得依赖 message 文本。
+
+`details` 提供结构化上下文。它可以包含 path、sourceId、scanner、diagnostics、schema issues 或 failure reason。
+
+退出码固定为：
+
+[cols="1,2,4",options="header"]
+|===
+| 退出码 | 名称 | 含义
+
+| `0`
+| success
+| 命令成功。
+
+| `1`
+| runtime failure
+| 未映射的运行时失败。
+
+| `2`
+| usage error
+| 命令行参数错误、未知命令、缺少必填参数或无效 option 值。
+
+| `3`
+| project discovery error
+| 项目发现或初始化状态错误。
+
+| `4`
+| config error
+| 配置读取、解析、schema 或 source 选择错误。
+
+| `5`
+| discovery or scanning error
+| 文件发现、scanner 注册、scanner 执行或 doctor 阻断诊断错误。
+|===
+
+错误码固定为：
+
+[cols="1,1,4",options="header"]
+|===
+| 错误码 | 退出码 | 触发条件
+
+| `USAGE_ERROR`
+| `2`
+| 命令行参数错误、未知命令、缺少 option 值或无效 option 值。
+
+| `PROJECT_NOT_FOUND`
+| `3`
+| CWD 向上发现没有找到 `.foo/config.toml`。
+
+| `PROJECT_CONFIG_NOT_FOUND`
+| `3`
+| 显式 `--project` 指定的根目录下不存在 `.foo/config.toml`。
+
+| `PROJECT_ALREADY_INITIALIZED`
+| `3`
+| `init` 目标目录已有配置且未传 `--force`。
+
+| `CONFIG_READ_FAILED`
+| `4`
+| 配置文件存在但不可读取。
+
+| `CONFIG_PARSE_FAILED`
+| `4`
+| TOML 语法无法解析。
+
+| `CONFIG_INVALID`
+| `4`
+| TOML 语法正确但 schema 或语义校验不成立。
+
+| `SOURCE_NOT_FOUND`
+| `4`
+| `--source <id>` 指向不存在的 source。
+
+| `SOURCE_ROOT_NOT_FOUND`
+| `5`
+| source root 在文件系统中不存在或不是目录。
+
+| `SCANNER_NOT_REGISTERED`
+| `5`
+| source 使用的 scanner key 没有注册。
+
+| `DISCOVERY_FAILED`
+| `5`
+| glob 展开、gitignore 读取或路径规范化失败。
+
+| `SCAN_FAILED`
+| `5`
+| scanner 执行失败。
+|===
+
+语言实现必须把内部错误映射到这些稳定错误码。TypeScript 的 exception、Python 的 exception、Rust 的 error enum 和 Go 的 error value 都不能直接泄漏为公共错误类型。
+
+未映射运行时失败使用退出码 `1`。该分支表示模板实现存在未归档错误路径，不是业务错误的常规表达方式。语言模板的测试应覆盖已知错误码，减少运行时失败分支。
+
+错误码表的快速索引见 xref:appendix-c-error-code-table[]。

@@ -1,0 +1,85 @@
+[#rust-template]
+== Rust 模板实现
+
+Rust 模板使用 Cargo、clap derive、serde、serde_json、toml、ignore、thiserror、camino、assert_cmd、assert_fs 和 insta。该组合承载 Rootward 的单 binary、高性能 discovery 和稳定错误语义。
+
+依赖形状如下。
+
+[source,toml]
+----
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.9"
+ignore = "0.4"
+thiserror = "2"
+camino = "1"
+
+[dev-dependencies]
+assert_cmd = "2"
+assert_fs = "1"
+insta = "1"
+----
+
+clap derive 承担命令表面。`Parser` 和 `Subcommand` 映射 Rootward 命令树。clap 不承担项目发现、配置读取、文件发现或输出投影。
+
+serde 承担结构化数据边界。配置输入、规范化配置、JSON 输出、diagnostics 和 error envelope 都应通过 serde 结构表达。
+
+toml crate 承担 TOML 解析和序列化。它服务 `.foo/config.toml` 读取、默认配置投影和 `config print`。
+
+ignore crate 承担递归目录遍历和 gitignore-aware discovery。Rust 模板不使用 walkdir 加自写 gitignore 规则作为默认方案。
+
+thiserror 承担内部错误类型。Rootward 错误码是公共契约，Rust 实现应定义 error enum，并把内部错误映射到稳定 `CliError`。任意错误上下文不能直接泄漏为公共错误。
+
+camino 承担 UTF-8 路径投影。Rootward 公共路径是 project-root-relative POSIX string；camino 使该约束在 Rust 类型层更清楚。
+
+assert_cmd、assert_fs 和 insta 承担 CLI 契约测试。assert_cmd 运行命令并断言退出码和输出；assert_fs 创建临时项目；insta 固定人类输出、JSON envelope 和诊断快照。
+
+源码结构固定为：
+
+[source,text]
+----
+src/
+  main.rs
+  lib.rs
+  cli.rs
+  commands/
+    init.rs
+    status.rs
+    discover.rs
+    scan.rs
+    config_print.rs
+    doctor.rs
+    shared.rs
+  core/
+    constants.rs
+    errors.rs
+    result.rs
+    project.rs
+    config.rs
+    discovery.rs
+    scanners.rs
+  io/
+    filesystem.rs
+    output.rs
+
+tests/
+  cli_contract.rs
+  snapshots/
+----
+
+`main.rs` 是真实进程入口。`lib.rs` 导出可测试 API。`cli.rs` 只处理 clap 命令表面。core 层不依赖 clap types。
+
+验证命令固定为：
+
+[source,bash]
+----
+cargo fmt --check
+cargo clippy --all-targets --all-features -- -D warnings
+cargo nextest run
+cargo test
+cargo build
+----
+
+Rust 模板不使用 structopt。clap derive 已经承担该位置。Rust 模板不使用 anyhow 作为公共错误模型。Rootward 的错误码和退出码必须由显式错误映射控制。

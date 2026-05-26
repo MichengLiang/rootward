@@ -1,0 +1,34 @@
+[#source-declaration-model]
+== Source 声明模型
+
+source 是进入工具视野的一组文件及其 scanner 分发关系。source 不是目录别名，不是文件扩展名集合，也不是业务动作。
+
+source 字段固定为：
+
+[source,toml]
+----
+[[sources]]
+id = "docs"
+root = "docs"
+include = ["**/*.{md,mdx,rst,adoc,txt}"]
+exclude = []
+scanner = "text"
+----
+
+`id` 是 source 在配置内的稳定标识。命令行 `--source <id>`、错误 details、JSON 输出、discover 分组、doctor 诊断和测试断言都使用该标识。
+
+`root` 是 source 根目录。它相对 project root 解析。`root = "docs"` 表示 `<projectRoot>/docs`。
+
+`include` 是 glob 数组。它相对 source root 解释，声明进入该 source 的候选文件集合。
+
+`exclude` 是 glob 数组。它相对 source root 解释，在 include 结果上执行排除。
+
+`scanner` 是 scanner registry key。它声明该 source 的文件交给哪个 scanner 处理。
+
+scanner key 不等于文件扩展名。一个 scanner 可以处理多个扩展名；一个扩展名也可以在不同业务工具中交给不同 scanner。scanner key 也不等于业务命令。它只负责连接“文件集合”和“处理器”。
+
+source 是文件发现和业务扫描之间的边界对象。文件发现模块负责把 source 配置展开为 `DiscoveredSource`；scanner 只消费已经发现的文件集合。scanner 不重新读取配置，不重新解释 glob，不重新决定 project root。
+
+Rootward 默认配置中的 `docs` 和 `python` source 是模板初始语境，不是 Rootward 支持文件类型的上限。业务工具可以替换默认 source，但不能改变 source 字段的公共语义。
+
+source 进入公共投影以后具有维护成本。新增 source 字段、新增 source 选择规则或新增 scanner 分发语义，都必须经过 xref:design-point-admission[] 中的设计点准入判断。

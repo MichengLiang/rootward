@@ -1,0 +1,53 @@
+[#file-discovery-semantics]
+== 文件发现语义
+
+文件发现（file discovery）把 `ProjectContext` 和 `NormalizedConfig` 转换为按 source 分组的 discovered files。它是 Rootward 项目型 CLI 的核心行为。
+
+发现输入固定为：
+
+* `ProjectContext`
+* `NormalizedConfig`
+* 可选的 source id
+* 本次执行的 discovery overrides
+
+发现输出固定为：
+
+[source,ts]
+----
+type DiscoveredFile = {
+  path: string;
+  sourceId: string;
+  scanner: string;
+};
+
+type DiscoveredSource = {
+  id: string;
+  root: string;
+  scanner: string;
+  include: string[];
+  exclude: string[];
+  files: DiscoveredFile[];
+};
+----
+
+`DiscoveredFile.path` 是 project-root-relative POSIX path。公共 JSON、测试断言和 scanner 输入都使用该路径作为稳定标识。绝对路径不进入默认公共投影。
+
+每个 source 的发现步骤固定如下。
+
+. 将 `source.root` 解析为 project-root-relative 路径。
+. 检查 source root 位于 project root 内部。
+. 检查 source root 存在并且是目录。
+. 使用 `source.include` 在 source root 内展开文件。
+. 使用 `source.exclude` 排除 include 结果。
+. 按 `respect_gitignore` 应用项目 `.gitignore`。
+. 按 `include_hidden` 排除隐藏路径。
+. 按 `follow_symlinks` 控制符号链接遍历。
+. 将结果规范化为 project-root-relative POSIX path。
+
+`--source <id>` 指向不存在的 source 时返回 `SOURCE_NOT_FOUND`。source root 不存在或不是目录时返回 `SOURCE_ROOT_NOT_FOUND`。glob 展开、gitignore 读取或路径规范化失败时返回 `DISCOVERY_FAILED`。
+
+source 匹配为空时，`discover` 返回成功并显示 `0 files`。空 source 是合法状态。`doctor` 会把空 source 报告为 warning，见 xref:doctor-diagnostics[]。
+
+Rootward 规定发现结果，不规定某个语言必须使用同一个遍历库。TypeScript 模板使用 globby；Python 模板使用 wcmatch 和 pathspec；Rust 模板使用 ignore crate；Go 模板使用 `filepath.WalkDir`、gobwas/glob 和 go-git gitignore。语言实现可以不同，公共路径形状和错误语义必须相同。
+
+文件发现不承担业务解析。Markdown 标题提取、Python AST 分析、Rust crate 解析、Go package 解析都属于 scanner 或业务命令。文件发现只确定哪些项目文件进入工具视野。

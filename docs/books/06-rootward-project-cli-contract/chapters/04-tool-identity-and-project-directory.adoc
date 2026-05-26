@@ -1,0 +1,28 @@
+[#tool-identity-and-project-directory]
+== 工具身份与项目目录
+
+Rootward 工具身份由 package name、CLI name 和 config directory name 三个对象组成。三者分别属于不同语境，不能自动互相推导。
+
+package name 属于语言包管理和发布语境。TypeScript 模板中的 package name 属于 npm；Python 模板中的 project name 属于 Python packaging；Rust 模板中的 crate name 属于 Cargo；Go 模板中的 module path 属于 Go modules。
+
+CLI name 属于用户命令输入。用户运行 `foo init`、`foo status`、`foo discover` 和 `foo scan` 时，`foo` 是命令表面的稳定入口。
+
+config directory name 属于项目文件系统语境。CLI name 为 `foo` 时，隐藏配置目录固定为 `.foo`。该目录承载工具项目配置、缓存和本地状态。
+
+三者的常量形状如下。
+
+[source,ts]
+----
+export const packageName = "@scope/foo";
+export const cliName = "foo";
+export const configDirName = ".foo";
+export const configFileName = "config.toml";
+----
+
+隐藏目录不从 package name 自动推导。scoped package、Go module path 和 Python distribution name 可以包含不适合作为项目目录名的字符或路径结构。CLI name 和 config directory name 是用户可见公共契约，必须由模板维护者显式确定。
+
+所有帮助文本、错误消息、初始化路径、项目发现路径和配置路径都从这些身份常量派生。模板复制者必须替换身份常量、包元数据、README 中的命令名、测试断言和示例路径。身份替换责任见 xref:template-copy-responsibilities[]。
+
+工具身份的稳定性直接影响项目语境。`.foo/config.toml` 一旦进入项目，脚本、CI、文档和用户习惯都会依赖该路径。工具不应在没有迁移规则的情况下改变 CLI name 或 config directory name。
+
+Rootward 不规定业务工具的品牌命名方式。Rootward 只规定命令身份和项目目录身份必须显式、稳定、可测试。

@@ -1,0 +1,31 @@
+[#command-line-overrides]
+== 命令行覆盖
+
+Rootward 覆盖优先级固定为：
+
+[source,text]
+----
+CLI flag > config.toml > built-in defaults
+----
+
+命令行覆盖只影响本次执行。它不修改 `.foo/config.toml`，不创建隐式配置，不把命令行变成配置编辑器。
+
+`--project <path>` 覆盖项目定位来源。它不修改配置。显式项目根语义见 xref:project-root-discovery[]。
+
+`--source <id>` 选择 source 子集。它不修改配置中的 sources。不存在的 source id 返回 `SOURCE_NOT_FOUND`。
+
+`--json` 选择机器输出投影。它不修改业务行为，不改变命令结果，只改变投影。
+
+`--list` 控制 `discover` 是否列出具体文件。它不修改发现结果。
+
+`--no-respect-gitignore` 覆盖 `discovery.respect_gitignore` 为 `false`。
+
+`--follow-symlinks` 覆盖 `discovery.follow_symlinks` 为 `true`。
+
+`--include-hidden` 覆盖 `discovery.include_hidden` 为 `true`。
+
+Rootward 不提供通过命令行增删 source 的基础命令。source 注册属于 TOML 配置契约，必须通过编辑 `.foo/config.toml` 完成。该规则防止命令行参数成为隐式项目状态。
+
+命令行覆盖必须进入规范化配置投影。`config print` 在使用 discovery override 时，应显示覆盖后的规范化配置。该行为使 CI 和用户能够确认本次执行的实际配置。
+
+命令行 usage error 映射为 `USAGE_ERROR` 和退出码 `2`。缺少 `--project` 或 `--source` 的参数值、未知命令、未知 option 和无效 option 值都属于 usage error。

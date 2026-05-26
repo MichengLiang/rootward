@@ -1,0 +1,26 @@
+== 参考资料
+
+* [[[commander]]] Commander: https://github.com/tj/commander.js
+* [[[zod]]] Zod: https://zod.dev/
+* [[[smol-toml]]] smol-toml: https://www.npmjs.com/package/smol-toml
+* [[[globby]]] globby: https://www.npmjs.com/package/globby
+* [[[uv]]] uv: https://docs.astral.sh/uv/
+* [[[typer]]] Typer: https://github.com/fastapi/typer
+* [[[pydantic]]] Pydantic: https://pydantic.dev/
+* [[[tomlkit]]] tomlkit: https://tomlkit.readthedocs.io/
+* [[[wcmatch]]] wcmatch: https://facelessuser.github.io/wcmatch/
+* [[[pathspec]]] pathspec: https://pypi.org/project/pathspec/
+* [[[ruff]]] Ruff: https://docs.astral.sh/ruff/
+* [[[ty]]] ty: https://docs.astral.sh/ty/
+* [[[clap]]] clap: https://docs.rs/clap/
+* [[[rust-ignore]]] ignore crate: https://docs.rs/ignore/
+* [[[rust-toml]]] toml crate: https://docs.rs/toml/
+* [[[thiserror]]] thiserror: https://docs.rs/thiserror/
+* [[[camino]]] camino: https://docs.rs/camino/
+* [[[assert-cmd]]] assert_cmd: https://docs.rs/assert_cmd/
+* [[[assert-fs]]] assert_fs: https://docs.rs/assert_fs/
+* [[[insta]]] insta: https://insta.rs/
+* [[[cobra]]] Cobra: https://cobra.dev/
+* [[[go-toml]]] go-toml/v2: https://pkg.go.dev/github.com/pelletier/go-toml/v2
+* [[[gobwas-glob]]] gobwas/glob: https://pkg.go.dev/github.com/gobwas/glob
+* [[[go-git-ignore]]] go-git gitignore: https://pkg.go.dev/github.com/go-git/go-git/v5/plumbing/format/gitignore

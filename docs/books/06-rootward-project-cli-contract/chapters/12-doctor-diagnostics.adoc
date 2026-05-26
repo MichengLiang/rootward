@@ -1,0 +1,46 @@
+[#doctor-diagnostics]
+== Doctor 诊断
+
+`doctor` 检查 Rootward 项目语境是否可被其他命令使用。它的职责是诊断配置、source root、scanner 注册和发现结果中的阻断问题或警告状态。
+
+命令表面为：
+
+[source,text]
+----
+foo doctor [--project <path>] [--json] [discovery overrides]
+----
+
+doctor 诊断项固定包含以下字段。
+
+[source,ts]
+----
+type Diagnostic = {
+  level: "info" | "warning" | "error";
+  code: string;
+  message: string;
+  sourceId?: string;
+};
+----
+
+`level` 表示诊断级别。`info` 表示可用事实，`warning` 表示不阻断其他命令但需要注意的状态，`error` 表示阻断其他命令的项目语境问题。
+
+`code` 是诊断项的稳定标识。它不一定等同 CLI error code，但阻断性诊断会映射到 CLI error code。
+
+`message` 面向人类。程序不得依赖 message 文本判断诊断类型。
+
+`sourceId` 在诊断项与特定 source 相关时出现。
+
+Rootward doctor 至少报告以下对象。
+
+* 配置已解析并通过校验。
+* source root 不存在或不是目录。
+* source 使用未注册 scanner。
+* source 匹配为空。
+
+doctor 和 discover 对同一问题的处理不同。`discover` 负责产生发现结果，source root 不存在时无法继续，因此返回 `SOURCE_ROOT_NOT_FOUND`。doctor 负责收集项目健康状态，source root 不存在时生成 error 诊断项，并在最终结果中保留完整 diagnostics。
+
+如果存在 error 诊断项，doctor 命令失败，并把 diagnostics 放入错误 details。主要错误码由首个阻断诊断映射：scanner 未注册映射为 `SCANNER_NOT_REGISTERED`，source root 问题映射为 `SOURCE_ROOT_NOT_FOUND`。
+
+如果只存在 warning 诊断项，doctor 命令成功。空 source 是合法配置状态，但它表示该 source 当前没有可扫描输入，因此作为 warning 投影。
+
+Rootward 层 doctor 不默认承担业务环境诊断。网络连接、外部服务凭据、数据库迁移、语言工具链版本和业务 parser 健康状态属于具体业务工具。业务工具可以扩展 doctor，但扩展项必须说明它服务的消费者动作、阻断语义和验证方式。

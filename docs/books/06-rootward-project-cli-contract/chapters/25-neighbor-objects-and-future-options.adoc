@@ -1,0 +1,22 @@
+[#neighbor-objects-and-future-options]
+== 相邻对象与未来期权
+
+Rootward 的边界通过正面定义成立，也通过相邻对象归档保持稳定。相邻对象不是错误对象，但它们不属于 Rootward 核心契约。
+
+通用 CLI framework 是相邻对象。Rootward 使用语言生态中的 CLI 库，但不提供框架级插件、生命周期、命令发现或扩展协议。
+
+上层软件项目 scaffold 是相邻对象。Rootward 的 `init` 建立工具项目语境，不创建应用项目、库项目、包管理器工程或语言工作区。
+
+业务 parser 是相邻对象。Rootward 默认 scanner 只证明 registry 分发结构。Markdown AST、Python AST、Rust crate metadata、Go package graph 和任意领域 parser 属于业务工具。
+
+插件市场是相邻对象。Rootward 的 scanner registry 是本地实现接入点，不承诺动态插件加载、远程插件搜索、版本协商、沙箱或信任模型。
+
+全局配置系统是相邻对象。Rootward 默认配置随项目走。用户 home 配置、环境变量优先级、组织级配置和远程配置需要由具体业务工具另行定义。
+
+图形界面和语言服务器是相邻对象。它们可以消费 Rootward JSON 输出和错误码，但不进入 Rootward 模板核心。
+
+包发布平台是相邻对象。npm、PyPI、crates.io 和 Go module distribution 各自有发布规则。Rootward 只规定模板内部的项目型 CLI 契约。
+
+未来期权必须保持期权身份。某个能力可能有价值，不等于它已经进入当前公共契约。保留期权的方式包括清晰模块边界、可测试核心、稳定 JSON、scanner registry 和明确的配置模型；过早承诺的方式包括提前发布插件市场、多配置来源、复杂缓存协议或语言服务器接口。
+
+相邻对象进入 Rootward 之前，必须通过 xref:design-point-admission[]。进入失败的对象不应以“后续支持”“第一版先不做”“默认可以扩展”等模糊表达留在核心定义层。

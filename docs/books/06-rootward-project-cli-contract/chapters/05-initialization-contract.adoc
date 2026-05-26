@@ -1,0 +1,45 @@
+[#initialization-contract]
+== 初始化契约
+
+`init` 建立工具项目语境。它不创建上层软件项目，不初始化语言工程，不生成业务源码。目标目录必须已经存在，并且必须是目录。
+
+命令表面固定为：
+
+[source,text]
+----
+foo init [path] [--force]
+----
+
+未传 `path` 时，目标目录是当前工作目录。传入 `path` 时，目标目录是该路径解析后的绝对目录。`init` 在目标目录下创建工具隐藏目录。
+
+初始化结构固定为：
+
+[source,text]
+----
+.foo/
+  config.toml
+  cache/
+    .gitignore
+  state/
+    .gitignore
+----
+
+`.foo/config.toml` 是项目配置文件。该文件属于 Rootward 公共契约，可以进入版本控制。它定义 discovery 行为和 source 声明；项目命令通过它解释项目文件集合。
+
+`.foo/cache/` 存放可重建缓存。该目录中的内容不进入版本控制。`.foo/cache/.gitignore` 固定为：
+
+[source,gitignore]
+----
+*
+!.gitignore
+----
+
+`.foo/state/` 存放本地运行状态。该目录中的内容不进入版本控制。`.foo/state/.gitignore` 使用同一内容。
+
+`init` 不修改项目根 `.gitignore`。运行态文件的版本控制边界由隐藏目录内部的局部 `.gitignore` 表达。该规则避免初始化命令扩大项目根文件的副作用。
+
+如果 `.foo/config.toml` 已存在，`init` 返回 `PROJECT_ALREADY_INITIALIZED`。传入 `--force` 时，`init` 覆盖 `.foo/config.toml`，并保证 `.foo/cache/.gitignore` 和 `.foo/state/.gitignore` 存在。
+
+默认配置是初始化契约的一部分。默认配置内容见 xref:appendix-b-default-config[]。默认配置用于建立可运行项目语境，不代表业务工具支持文件类型的上限。
+
+`init` 成功的公共投影应包含 project root 和 config path。JSON 模式下，该信息进入成功 envelope 的 `data`；人类模式下，该信息进入终端摘要。

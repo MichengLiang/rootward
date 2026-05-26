@@ -1,0 +1,63 @@
+[#human-and-json-output]
+== 人类输出与 JSON 输出
+
+Rootward 命令核心返回结构化 result。输出层把 result 投影为人类文本或 JSON。核心模块不直接写 stdout 或 stderr。
+
+命令结果结构固定为：
+
+[source,ts]
+----
+type CommandResult<T> =
+  | {
+      ok: true;
+      code: 0;
+      data: T;
+    }
+  | {
+      ok: false;
+      code: ExitCode;
+      error: CliError;
+    };
+----
+
+JSON 成功输出固定为：
+
+[source,json]
+----
+{
+  "ok": true,
+  "data": {}
+}
+----
+
+JSON 失败输出固定为：
+
+[source,json]
+----
+{
+  "ok": false,
+  "error": {
+    "code": "PROJECT_NOT_FOUND",
+    "message": "No .foo/config.toml was found from the current directory upward.",
+    "details": {}
+  }
+}
+----
+
+成功 JSON 写入 stdout。失败 JSON 写入 stderr。该规则使脚本能够把成功数据流和失败诊断流分开处理。
+
+人类输出服务终端阅读。人类输出可以使用摘要表、分组列表或 TOML 文本。机器消费者不得解析人类输出。机器消费者必须使用 `--json`。
+
+人类错误输出不暴露内部 stack trace。普通错误输出包含错误 code、message 和必要 details。内部调试信息不进入 Rootward 默认公共输出。
+
+`status` 人类输出应投影 project root、config path、discovery mode 和 sources 状态。
+
+`discover` 人类输出应投影 project root、config path、source、scanner、root 和 file count。`--list` 模式下应列出 project-root-relative POSIX path。
+
+`config print` 人类输出使用 TOML。JSON 模式输出规范化配置对象。
+
+`scan` 人类输出应投影每个 source 的 scanner、files、bytes、lines 和总计。
+
+`doctor` 人类输出应投影整体状态和诊断项。诊断项至少包含 level、code、source id 和 message。
+
+输出投影是公共契约。新增 JSON 字段、删除 JSON 字段、改变错误 envelope、改变路径格式和改变 stdout/stderr 归属，都会影响消费者，必须经过 xref:design-point-admission[] 的准入判断。

@@ -1,0 +1,2 @@
+:series-name: Rootward CLI Templates
+:source-format: AsciiDoc

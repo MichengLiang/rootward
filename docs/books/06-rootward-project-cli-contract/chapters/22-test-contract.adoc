@@ -1,0 +1,74 @@
+[#test-contract]
+== 测试契约
+
+Rootward 测试证明公共契约成立。测试目标不是证明命令入口存在，而是证明项目语境、配置、发现、scanner、输出和错误语义在该语言实现中稳定。
+
+所有语言模板必须覆盖以下测试组。
+
+初始化测试：
+
+* `init` 在目标目录创建 `.foo/config.toml`。
+* `init` 创建 `.foo/cache/.gitignore`。
+* `init` 创建 `.foo/state/.gitignore`。
+* 已初始化目录再次 `init` 返回 `PROJECT_ALREADY_INITIALIZED`。
+* `init --force` 覆盖配置文件，并保留 cache/state gitignore 结构。
+
+项目定位测试：
+
+* 从项目根运行 `status` 找到配置。
+* 从子目录运行 `status` 向上找到配置。
+* `--project` 指定项目根时只读取该根配置。
+* `--project` 指定错误目录时返回 `PROJECT_CONFIG_NOT_FOUND`。
+* 未初始化目录运行项目命令返回 `PROJECT_NOT_FOUND`。
+
+配置测试：
+
+* 默认 TOML 通过 schema 和语义校验。
+* TOML 语法错误返回 `CONFIG_PARSE_FAILED`。
+* schema 或语义错误返回 `CONFIG_INVALID`。
+* source id 重复返回 `CONFIG_INVALID`。
+* source root 使用绝对路径返回 `CONFIG_INVALID`。
+* source root 越界返回 `CONFIG_INVALID`。
+
+发现测试：
+
+* `discover` 按 include 展开文件。
+* `discover` 按 exclude 排除文件。
+* `discover --source <id>` 只展开指定 source。
+* `respect_gitignore = true` 时排除 `.gitignore` 声明路径。
+* `--no-respect-gitignore` 覆盖配置。
+* `include_hidden = false` 时不扫描隐藏路径。
+* `--include-hidden` 覆盖配置。
+* source root 不存在返回 `SOURCE_ROOT_NOT_FOUND`。
+* source 匹配为空时 `discover` 成功并输出 `0 files`。
+
+scanner 测试：
+
+* `scan` 按 source scanner 分发。
+* 未注册 scanner 返回 `SCANNER_NOT_REGISTERED`。
+* 内置 scanner 返回文件数、字节数和行数。
+
+输出测试：
+
+* 成功 JSON 输出包含 `ok: true` 和 `data`。
+* 失败 JSON 输出包含 `ok: false` 和稳定 error code。
+* 成功 JSON 写 stdout。
+* 失败 JSON 写 stderr。
+* 人类输出不包含 stack trace。
+
+doctor 测试：
+
+* 配置有效时包含 `CONFIG_OK` 诊断。
+* source root 缺失时包含 error 诊断，并返回阻断错误。
+* source 使用未注册 scanner 时包含 error 诊断，并返回阻断错误。
+* 空 source 产生 warning，但 doctor 命令成功。
+
+usage error 测试：
+
+* 缺少 `--project` 值返回 `USAGE_ERROR` 和退出码 `2`。
+* 缺少 `--source` 值返回 `USAGE_ERROR` 和退出码 `2`。
+* 未知命令或未知 option 返回 `USAGE_ERROR` 和退出码 `2`。
+
+测试 fixture 必须位于当前项目或模板目录内部。测试不得跨盘扫描系统目录、用户目录或工作区外路径。临时项目应创建在模板项目内的 `temporary/`、`tmp/` 或语言测试框架提供的受控临时目录中。
+
+每种语言可以使用不同测试工具。TypeScript 使用 Vitest，Python 使用 pytest，Rust 使用 assert_cmd/assert_fs/insta，Go 使用标准 testing。工具差异不能改变测试覆盖的 Rootward 行为。

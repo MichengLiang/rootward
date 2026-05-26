@@ -1,0 +1,38 @@
+[#rootward-artifact-boundary]
+== Rootward 的人工制品边界
+
+Rootward 是一套跨语言项目型 CLI 模板契约。该契约规定项目型 CLI 工具如何建立项目语境、发现项目根、读取项目内配置、声明源文件集合、投影发现结果、分发 scanner、输出稳定 JSON，并把错误映射为稳定错误码和退出码。
+
+Rootward 的人工制品不是 TypeScript、Python、Rust 或 Go 中的任意一种实现。语言模板是实现物，Rootward 契约是这些实现物共同承载的对象。一个语言模板只有在保持 Rootward 公共契约时，才是 Rootward 模板。
+
+Rootward 的构成性条件如下。
+
+* 工具有稳定 CLI name。
+* 工具有稳定 config directory name。
+* 工具有稳定 TOML 配置文件位置。
+* 工具有明确初始化命令。
+* 工具有显式项目根和 CWD 向上发现两种项目定位方式。
+* 工具有运行时配置 schema 和语义校验。
+* 工具有 source 声明模型。
+* 工具有 gitignore-aware 文件发现。
+* 工具有 scanner registry 接入点。
+* 工具有 `status`、`discover`、`scan`、`config print` 和 `doctor` 命令。
+* 工具有稳定错误码和退出码。
+* 工具有稳定 JSON 输出。
+* 核心逻辑可以脱离真实进程入口测试。
+
+这些条件共同定义 Rootward 项目型 CLI 模板。缺少项目根发现，模板无法建立项目语境。缺少项目内配置，工具行为不能随项目复制和审查。缺少 source 声明，文件集合不能成为公共契约。缺少 discover 投影，工具视野不能被验证。缺少稳定 JSON 和错误码，自动化调用方不能可靠消费结果。缺少可测试核心，契约行为不能被持续证明。
+
+Rootward 不承担以下对象。
+
+* Rootward 不是通用 CLI framework。
+* Rootward 不是上层软件项目 scaffold。
+* Rootward 不是业务 parser。
+* Rootward 不是插件市场。
+* Rootward 不是全局配置系统。
+* Rootward 不是远程配置服务。
+* Rootward 不是图形界面或语言服务器。
+
+这些对象可以由具体业务工具实现，也可以作为未来期权研究，但它们不进入 Rootward 核心契约。Rootward 的边界使语言模板保持同构，使业务工具能够在清楚的项目语境上继续构造自己的能力。
+
+Rootward 的对象边界在本书中逐层展开。项目语境契约见 xref:tool-identity-and-project-directory[] 至 xref:configuration-model[]；发现与扫描契约见 xref:source-declaration-model[] 至 xref:doctor-diagnostics[]；命令、输出与错误契约见 xref:command-set[] 至 xref:error-codes-and-exit-codes[]；跨语言实现约束见 xref:cross-language-isomorphism[]。

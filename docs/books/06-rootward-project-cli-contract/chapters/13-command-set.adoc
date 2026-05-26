@@ -1,0 +1,30 @@
+[#command-set]
+== 命令集合
+
+Rootward 模板固定六组基础命令：`init`、`status`、`discover`、`scan`、`config print` 和 `doctor`。
+
+[source,text]
+----
+foo init [path] [--force]
+foo status [--project <path>] [--json]
+foo discover [--project <path>] [--source <id>] [--list] [--json] [discovery overrides]
+foo scan [--project <path>] [--source <id>] [--json] [discovery overrides]
+foo config print [--project <path>] [--json] [discovery overrides]
+foo doctor [--project <path>] [--json] [discovery overrides]
+----
+
+`init` 创建工具项目语境。它是唯一不要求已有 Rootward 配置的基础命令。初始化契约见 xref:initialization-contract[]。
+
+`status` 投影当前项目语境。它输出 project root、config path、discovery mode、source 数量和 source root 状态。该命令用于确认工具当前解释的是哪个项目。
+
+`discover` 投影文件发现结果。它加载项目配置，展开 sources，应用 include、exclude、gitignore、hidden 和 symlink 规则，并输出每个 source 匹配的文件数量。discover 投影见 xref:discover-projection[]。
+
+`scan` 消费 scanner registry 和发现结果。它先执行文件发现，再把每个 `DiscoveredSource` 分发给对应 scanner。未注册 scanner 返回 `SCANNER_NOT_REGISTERED`。
+
+`config print` 输出规范化配置。它显示 TOML 配置经过 schema 校验、默认值填充和 CLI 覆盖后的结果。人类输出使用 TOML，JSON 输出使用规范化对象。
+
+`doctor` 检查项目配置健康状态。它报告配置解析、source root、空 source、scanner 注册和发现语义中的问题。doctor 诊断见 xref:doctor-diagnostics[]。
+
+Rootward 基础命令不是业务工具能力上限。业务工具可以新增命令，但新增命令不得改变基础命令的项目定位、配置读取、文件发现、输出和错误语义。
+
+命令层只承担命令表面。项目发现属于 `core/project`，配置属于 `core/config`，文件发现属于 `core/discovery`，scanner 分发属于 `core/scanners`，输出投影属于 `io/output`。语言实现可以调整模块命名，但不能把这些职责混入命令层。

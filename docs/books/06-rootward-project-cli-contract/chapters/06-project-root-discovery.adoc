@@ -1,0 +1,37 @@
+[#project-root-discovery]
+== 项目根发现
+
+项目根发现（project root discovery）确定 Rootward 命令解释项目路径、配置文件和 source root 的基准。Rootward 只定义两种项目定位方式：显式项目根和 CWD 向上发现。
+
+显式项目根由 `--project <path>` 提供。该路径解析后的绝对目录就是 project root。工具只检查 `<projectRoot>/.foo/config.toml`。配置存在时加载该配置；配置不存在时返回 `PROJECT_CONFIG_NOT_FOUND`。显式项目根不触发向上搜索。
+
+CWD 向上发现用于没有 `--project` 的命令。工具从当前工作目录开始，逐级检查 `.foo/config.toml`。找到第一个配置文件时停止。包含 `.foo` 的目录就是 project root。搜索到文件系统根仍未找到配置时返回 `PROJECT_NOT_FOUND`。
+
+该规则把用户意图区分成两个稳定层位。`--project` 表示用户已经指定项目根；CWD 向上发现表示用户让工具按当前位置推导项目根。显式指定和自动推导不混用。
+
+项目定位结果结构固定为：
+
+[source,ts]
+----
+type ProjectContext = {
+  projectRoot: string;
+  configDir: string;
+  configPath: string;
+  discoveryMode: "explicit" | "cwd-upward";
+  startDirectory: string;
+};
+----
+
+`projectRoot` 是项目路径基准。配置中的 `source.root` 全部相对该目录解析。
+
+`configDir` 是工具隐藏目录。CLI name 为 `foo` 时，该目录为 `<projectRoot>/.foo`。
+
+`configPath` 是 TOML 配置路径。CLI name 为 `foo` 时，该路径为 `<projectRoot>/.foo/config.toml`。
+
+`discoveryMode` 记录项目定位来源。该字段服务 `status` 投影和 JSON 调试，不改变下游命令行为。
+
+`startDirectory` 记录 CWD 向上发现的起点。显式项目根模式下，它等于显式项目根的绝对形式。
+
+所有需要项目语境的命令必须通过同一个项目定位模块。命令层不直接拼接 `.foo/config.toml`。该规则防止不同命令拥有不同项目解释。
+
+项目根发现是路径规则的前置条件。source root、include/exclude、public path、scanner 输入和错误 details 都必须在同一 `ProjectContext` 下解释。

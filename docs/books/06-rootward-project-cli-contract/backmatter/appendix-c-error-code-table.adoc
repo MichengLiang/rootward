@@ -1,0 +1,55 @@
+[#appendix-c-error-code-table]
+== 错误码表
+
+[cols="1,1,4",options="header"]
+|===
+| 错误码 | 退出码 | 消费者解释
+
+| `USAGE_ERROR`
+| `2`
+| 命令表面错误。用户或调用方需要修正参数、命令或 option。
+
+| `PROJECT_NOT_FOUND`
+| `3`
+| 当前目录向上没有 Rootward 配置。用户需要进入已初始化项目，或运行 `init`，或使用 `--project`。
+
+| `PROJECT_CONFIG_NOT_FOUND`
+| `3`
+| 显式项目根缺少 Rootward 配置。调用方指定了错误项目根，或目标项目尚未初始化。
+
+| `PROJECT_ALREADY_INITIALIZED`
+| `3`
+| 目标项目已有配置。用户需要停止重复初始化，或使用 `--force`。
+
+| `CONFIG_READ_FAILED`
+| `4`
+| 配置路径存在但不可读取。用户需要检查权限或文件状态。
+
+| `CONFIG_PARSE_FAILED`
+| `4`
+| 配置不是合法 TOML。用户需要修正 TOML 语法。
+
+| `CONFIG_INVALID`
+| `4`
+| 配置结构或语义不符合 Rootward schema。用户需要修正字段、source id、root 或 scanner 声明。
+
+| `SOURCE_NOT_FOUND`
+| `4`
+| 命令选择了不存在的 source。用户需要检查 `--source` 值或配置。
+
+| `SOURCE_ROOT_NOT_FOUND`
+| `5`
+| source root 不存在或不是目录。用户需要创建目录或修正配置。
+
+| `SCANNER_NOT_REGISTERED`
+| `5`
+| source 指向未注册 scanner。维护者需要注册 scanner 或修正配置。
+
+| `DISCOVERY_FAILED`
+| `5`
+| 文件发现执行失败。用户或维护者需要检查 glob、gitignore 读取和路径状态。
+
+| `SCAN_FAILED`
+| `5`
+| scanner 执行失败。维护者需要检查 scanner 实现或输入文件。
+|===

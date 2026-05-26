@@ -1,0 +1,30 @@
+[#appendix-b-default-config]
+== 默认配置规范
+
+Rootward 模板默认配置如下。
+
+[source,toml]
+----
+[discovery]
+respect_gitignore = true
+follow_symlinks = false
+include_hidden = false
+
+[[sources]]
+id = "docs"
+root = "docs"
+include = ["**/*.{md,mdx,rst,adoc,txt}"]
+exclude = []
+scanner = "text"
+
+[[sources]]
+id = "python"
+root = "src"
+include = ["**/*.py"]
+exclude = ["**/__pycache__/**"]
+scanner = "python"
+----
+
+该配置用于初始化可运行项目语境。`docs` 和 `python` source 是模板默认输入，不是 Rootward 支持文件类型的上限。
+
+业务工具复制模板后可以替换默认 source。替换 source 不改变 source 模型。
