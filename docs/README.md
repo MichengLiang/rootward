@@ -43,6 +43,12 @@ pnpm run build
 build/html/index.html
 ```
 
+`index.html` 直接指向当前唯一的契约书。书库目录仍保留为：
+
+```text
+build/html/catalog.html
+```
+
 契约书输出：
 
 ```text

@@ -56,6 +56,12 @@ The generated site entry is:
 docs/build/html/index.html
 ```
 
+The site root opens the contract book directly. The generated catalog remains available at:
+
+```text
+docs/build/html/catalog.html
+```
+
 ## Repository Layout
 
 ```text

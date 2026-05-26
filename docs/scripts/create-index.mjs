@@ -1,10 +1,27 @@
-import { copyFile } from "node:fs/promises";
+import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+export const defaultBookPath = "books/06-rootward-project-cli-contract/book.html";
+
 export async function createIndexForSite(rootDir) {
   const htmlDir = path.join(rootDir, "build", "html");
-  await copyFile(path.join(htmlDir, "catalog.html"), path.join(htmlDir, "index.html"));
+  await writeFile(
+    path.join(htmlDir, "index.html"),
+    `<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="refresh" content="0; url=${defaultBookPath}">
+  <link rel="canonical" href="${defaultBookPath}">
+  <title>Rootward 项目型 CLI 契约</title>
+</head>
+<body>
+  <p><a href="${defaultBookPath}">Rootward 项目型 CLI 契约</a></p>
+</body>
+</html>
+`
+  );
 }
 
 async function main() {
