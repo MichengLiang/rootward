@@ -14,10 +14,12 @@ test("addHomeLinkToBookHtml inserts the catalog link before the TOC title", () =
 
   const updated = addHomeLinkToBookHtml(html, "../../catalog.html");
 
-  assert.match(updated, /data-multi-book-home/);
+  assert.match(updated, /data-rootward-doc-home/);
   assert.match(updated, /href="\.\.\/\.\.\/catalog\.html"/);
+  assert.match(updated, /Rootward 文档首页/);
+  assert.match(updated, /Rootward 契约书库/);
   assert.ok(
-    updated.indexOf("data-multi-book-home") < updated.indexOf('<div id="toctitle">'),
+    updated.indexOf("data-rootward-doc-home") < updated.indexOf('<div id="toctitle">'),
     "home link should appear before the TOC title"
   );
 });
@@ -34,7 +36,7 @@ test("addHomeLinkToBookHtml is idempotent", () => {
   const once = addHomeLinkToBookHtml(html, "../../catalog.html");
   const twice = addHomeLinkToBookHtml(once, "../../catalog.html");
 
-  assert.equal(twice.match(/data-multi-book-home/g).length, 1);
+  assert.equal(twice.match(/data-rootward-doc-home/g).length, 1);
 });
 
 test("addHomeLinkToBookHtml fails when the TOC container is missing", () => {

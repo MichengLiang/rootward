@@ -24,14 +24,14 @@ The contract fixes the behavior that long-lived project tools repeatedly need:
 - `doctor` reports project-context health.
 - JSON output, error codes, and exit codes are stable public contracts.
 
-## Language Matrix
+## Language Contract Matrix
 
-| Language | Status | Template Role |
+| Language | Contract status | Template role |
 |---|---:|---|
-| TypeScript | Contract source implementation | Node 24, Commander, Zod, smol-toml, globby, Vitest, Biome |
-| Python | Planned implementation | uv, Typer, Pydantic v2, tomlkit, wcmatch, pathspec, pytest, Ruff, ty |
-| Rust | Planned implementation | clap derive, serde, toml, ignore, thiserror, camino, assert_cmd, assert_fs, insta |
-| Go | Planned implementation | Cobra, go-toml/v2, gobwas/glob, go-git gitignore, standard testing |
+| TypeScript | Specified reference implementation | Node 24, Commander, Zod, smol-toml, globby, Vitest, Biome |
+| Python | Specified implementation | uv, Typer, Pydantic v2, tomlkit, wcmatch, pathspec, pytest, Ruff, ty |
+| Rust | Specified implementation | clap derive, serde, toml, ignore, thiserror, camino, assert_cmd, assert_fs, insta |
+| Go | Specified implementation | Cobra, go-toml/v2, gobwas/glob, go-git gitignore, standard testing |
 
 ## Documentation
 
@@ -73,7 +73,7 @@ docs/
   test/
 ```
 
-`docs/` is an AsciiDoc multi-book workspace. Build outputs, temporary material, and dependencies are ignored by Git.
+`docs/` is an AsciiDoc book workspace. Build outputs, temporary material, and dependencies are ignored by Git.
 
 ## License
 

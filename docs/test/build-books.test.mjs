@@ -1,18 +1,18 @@
 import assert from "node:assert/strict";
+import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 
 import { buildPlanForWorkspace } from "../scripts/build-books.mjs";
 
 test("buildPlanForWorkspace finds book.adoc entries and maps each to its own output directory", async () => {
-  const root = path.join(tmpdir(), `multi-book-${Date.now()}`);
-  await mkdir(path.join(root, "books", "01-foundations"), { recursive: true });
-  await mkdir(path.join(root, "books", "02-practice"), { recursive: true });
+  const root = path.resolve("tmp", "test-fixtures", `rootward-books-${randomUUID()}`);
+  await mkdir(path.join(root, "books", "06-rootward-project-cli-contract"), { recursive: true });
+  await mkdir(path.join(root, "books", "07-rootward-reference"), { recursive: true });
   await mkdir(path.join(root, "books", "notes-only"), { recursive: true });
-  await writeFile(path.join(root, "books", "01-foundations", "book.adoc"), "= Foundations\n");
-  await writeFile(path.join(root, "books", "02-practice", "book.adoc"), "= Practice\n");
+  await writeFile(path.join(root, "books", "06-rootward-project-cli-contract", "book.adoc"), "= Rootward Contract\n");
+  await writeFile(path.join(root, "books", "07-rootward-reference", "book.adoc"), "= Rootward Reference\n");
 
   const plan = await buildPlanForWorkspace(root);
 
@@ -24,14 +24,14 @@ test("buildPlanForWorkspace finds book.adoc entries and maps each to its own out
     })),
     [
       {
-        bookId: "01-foundations",
-        input: path.join("books", "01-foundations", "book.adoc"),
-        outputDir: path.join("build", "html", "books", "01-foundations")
+        bookId: "06-rootward-project-cli-contract",
+        input: path.join("books", "06-rootward-project-cli-contract", "book.adoc"),
+        outputDir: path.join("build", "html", "books", "06-rootward-project-cli-contract")
       },
       {
-        bookId: "02-practice",
-        input: path.join("books", "02-practice", "book.adoc"),
-        outputDir: path.join("build", "html", "books", "02-practice")
+        bookId: "07-rootward-reference",
+        input: path.join("books", "07-rootward-reference", "book.adoc"),
+        outputDir: path.join("build", "html", "books", "07-rootward-reference")
       }
     ]
   );
