@@ -38,7 +38,7 @@ The contract fixes the behavior that long-lived project tools repeatedly need:
 The primary document is the contract book:
 
 - Source: [`docs/books/06-rootward-project-cli-contract/book.adoc`](docs/books/06-rootward-project-cli-contract/book.adoc)
-- Local build output: `docs/build/html/catalog.html`
+- Local build output: `docs/build/html/index.html`
 - Published site: `https://michengliang.github.io/rootward/`
 
 Build the documentation locally:
@@ -53,7 +53,7 @@ pnpm run build
 The generated site entry is:
 
 ```text
-docs/build/html/catalog.html
+docs/build/html/index.html
 ```
 
 ## Repository Layout

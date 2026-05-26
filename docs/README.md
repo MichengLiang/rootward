@@ -40,7 +40,7 @@ pnpm run build
 输出入口：
 
 ```text
-build/html/catalog.html
+build/html/index.html
 ```
 
 契约书输出：
