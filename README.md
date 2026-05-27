@@ -33,7 +33,7 @@ The contract fixes the behavior that long-lived project tools repeatedly need:
 |---|---:|---|
 | TypeScript | Specified reference implementation | Node 24, Commander, Zod, smol-toml, globby, Vitest, Biome |
 | Python | Specified implementation | uv, Typer, Pydantic v2, tomlkit, wcmatch, pathspec, pytest, Ruff, ty |
-| Rust | Specified implementation | clap derive, serde, toml, ignore, thiserror, camino, assert_cmd, assert_fs, insta |
+| Rust | Specified implementation | clap derive, serde, toml, ignore, globset, thiserror, camino, assert_cmd, assert_fs |
 | Go | Specified implementation | Cobra, go-toml/v2, gobwas/glob, go-git gitignore, standard testing |
 
 ## Create A CLI
@@ -42,6 +42,12 @@ Create a TypeScript Rootward CLI:
 
 ```bash
 pnpm create rootward typescript my-tool --cli-name my-tool --package-name my-tool
+```
+
+Create a Rust Rootward CLI:
+
+```bash
+pnpm create rootward rust my-tool --cli-name my-tool --crate-name my_tool_core --bin-name my-tool
 ```
 
 Equivalent npm entry points:
@@ -62,7 +68,17 @@ pnpm dev -- init
 pnpm dev -- discover --json
 ```
 
-The TypeScript template is implemented. Python, Rust, and Go template IDs are reserved and return `TEMPLATE_NOT_IMPLEMENTED` until their template sources satisfy the Rootward contract.
+For a generated Rust project:
+
+```bash
+cd my-tool
+cargo test
+cargo build
+cargo run -- init
+cargo run -- discover --json
+```
+
+The TypeScript and Rust templates are implemented. Python and Go template IDs are reserved and return `TEMPLATE_NOT_IMPLEMENTED` until their template sources satisfy the Rootward contract.
 
 ## Documentation
 
@@ -125,6 +141,7 @@ Useful focused commands:
 ```bash
 pnpm --filter create-rootward test
 pnpm --filter create-rootward pack:check
+pnpm templates:rust:check
 pnpm --dir docs build
 ```
 

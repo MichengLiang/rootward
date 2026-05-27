@@ -4,6 +4,23 @@ All notable changes to this project are documented in this file.
 
 This project uses semantic versioning after `0.1.0`.
 
+## 0.1.2 - 2026-05-28
+
+### Added
+
+- Rust template source with Cargo-based project discovery, configuration, discovery, scan, doctor, and stable JSON output.
+- Rust Creator identity options for CLI name, config directory name, crate name, and binary target name.
+- Rust template verification and Creator smoke checks in the root check suite.
+
+### Changed
+
+- Creator manifest validation rejects prefix-overlapping tokens and identity references that are not declared by the manifest.
+- Rust template initialization reports overwrite and created-path JSON fields from actual filesystem state.
+
+### Removed
+
+- Removed the obsolete `.gitkeep` file from the non-empty Rust template source.
+
 ## 0.1.1 - 2026-05-27
 
 ### Added

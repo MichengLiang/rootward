@@ -16,6 +16,10 @@ pnpm create rootward typescript my-tool --cli-name my-tool --package-name my-too
 ```
 
 ```bash
+pnpm create rootward rust my-tool --cli-name my-tool --crate-name my_tool_core --bin-name my-tool
+```
+
+```bash
 npx create-rootward typescript my-tool --cli-name my-tool --package-name my-tool
 ```
 
@@ -30,13 +34,23 @@ pnpm dev -- init
 pnpm dev -- discover --json
 ```
 
+For a generated Rust project:
+
+```bash
+cd my-tool
+cargo test
+cargo build
+cargo run -- init
+cargo run -- discover --json
+```
+
 ## Templates
 
 | Template | Status |
 |---|---|
 | `typescript` | implemented |
+| `rust` | implemented |
 | `python` | reserved |
-| `rust` | reserved |
 | `go` | reserved |
 
 Reserved templates are declared by manifest and return `TEMPLATE_NOT_IMPLEMENTED`.

@@ -1,6 +1,6 @@
 {
   "name": "create-rootward",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Create Rootward project-oriented CLI templates.",
   "license": "Apache-2.0",
   "author": {
