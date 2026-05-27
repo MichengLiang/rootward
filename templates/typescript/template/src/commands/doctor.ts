@@ -83,5 +83,9 @@ export async function doctorCommand(options: ProjectCommandOptions) {
     });
   }
 
-  return ok({ ok: true, diagnostics });
+  return ok({
+    projectRoot: context.projectRoot,
+    configPath: context.configPath,
+    diagnostics,
+  });
 }

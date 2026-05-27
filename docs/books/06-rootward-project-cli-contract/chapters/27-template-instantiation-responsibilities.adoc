@@ -1,7 +1,7 @@
 [#template-instantiation-responsibilities]
 == 模板实例化责任
 
-Rootward 模板是业务工具的起点。Creator 实例化模板时，必须替换工具身份、生成物包元数据和文档表面，同时保留 Rootward 基础契约。手工复制不是 Rootward 默认消费路径。
+Rootward 模板是业务工具的起点。Creator 实例化模板时，必须替换工具身份、生成物包元数据和文档表面，同时保留 Rootward 基础契约。手工复制不是 Rootward 默认消费路径。Creator 实例化时读取的模板内容必须来自仓库模板源或 packaged template asset；维护者不得通过 package-local template source 改变 Creator 行为。
 
 必须替换的对象包括：
 

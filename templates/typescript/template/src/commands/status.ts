@@ -11,7 +11,6 @@ export async function statusCommand(options: ProjectCommandOptions) {
     projectRoot: context.projectRoot,
     configPath: context.configPath,
     discoveryMode: context.discoveryMode,
-    startDirectory: context.startDirectory,
     sourceCount: config.sources.length,
     sources: await sourceStatuses(context.projectRoot, config, fs),
   });

@@ -12,8 +12,10 @@ import { type FileSystem, nodeFileSystem } from "../io/filesystem";
 
 export type InitData = {
   projectRoot: string;
+  configDir: string;
   configPath: string;
-  created: string[];
+  created: Array<"config" | "cache" | "state">;
+  overwritten: boolean;
 };
 
 export async function initCommand(options: {
@@ -46,19 +48,17 @@ export async function initCommand(options: {
   const configPath = resolve(configDir, configFileName);
   const cacheDir = resolve(configDir, "cache");
   const stateDir = resolve(configDir, "state");
+  const configExisted = await fs.pathExists(configPath);
+  const cacheExisted = await fs.pathExists(cacheDir);
+  const stateExisted = await fs.pathExists(stateDir);
 
   if (!options.force) {
-    try {
-      await fs.stat(configPath);
+    if (configExisted) {
       throw createError(
         "PROJECT_ALREADY_INITIALIZED",
         `Project already contains a ${configDirName} config file.`,
         { configPath },
       );
-    } catch (error) {
-      if (error instanceof Error && error.name === "CliFailure") {
-        throw error;
-      }
     }
   }
 
@@ -70,11 +70,13 @@ export async function initCommand(options: {
 
   return ok({
     projectRoot,
+    configDir,
     configPath,
     created: [
-      `${configDirName}/${configFileName}`,
-      `${configDirName}/cache/.gitignore`,
-      `${configDirName}/state/.gitignore`,
+      ...(!configExisted ? (["config"] as const) : []),
+      ...(!cacheExisted ? (["cache"] as const) : []),
+      ...(!stateExisted ? (["state"] as const) : []),
     ],
+    overwritten: options.force === true && configExisted,
   });
 }

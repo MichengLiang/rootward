@@ -14,7 +14,6 @@ export async function discoverCommand(
   return ok({
     projectRoot: context.projectRoot,
     configPath: context.configPath,
-    list: options.list ?? false,
     ...discovery,
   });
 }

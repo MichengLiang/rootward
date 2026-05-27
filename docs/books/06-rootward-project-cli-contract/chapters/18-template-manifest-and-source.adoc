@@ -1,7 +1,7 @@
 [#template-manifest-and-source]
 == 模板 Manifest 与模板源
 
-Rootward language template 是 Creator 可以读取并实例化的模板源。每个语言模板目录固定包含 manifest 和 template root。
+Rootward language template 是 Creator 可以读取并实例化的模板对象。Rootward 区分仓库模板源（repository template source）和打包模板资产（packaged template asset）。仓库模板源是维护者编辑、审查和演进的唯一模板源；打包模板资产是 Creator package artifact 中供发布态 Creator runtime 读取的生成资产。
 
 Rootward repository 的模板体系目录固定为：
 
@@ -16,7 +16,11 @@ templates/
   go/
 ----
 
-`packages/create-rootward/` 承载 npm Creator package。`templates/` 承载仓库级模板源。Creator package 发布时必须携带同一份模板源，使 npm package 版本、Creator 行为和模板集合保持同一版本边界。发布包内模板源是仓库级模板源的打包副本；两者的 manifest、template root 和 reserved 状态必须一致。
+`packages/create-rootward/` 承载 npm Creator package 的源码、构建脚本和测试。`templates/` 承载仓库模板源。维护者只在 `templates/` 中编辑 manifest 和 template root。
+
+`packages/create-rootward/templates/` 不属于 Rootward repository 的 source layout。Rootward 不通过 package-local template source 维护发布资产。若实现需要在 package 构建期间准备模板文件，该文件集合必须位于 ignored build output 或 pack staging 内，并且必须能由 `templates/` 重新生成。
+
+Creator package artifact 必须包含从仓库模板源生成的 packaged template asset。该资产位于 Creator runtime 可读的构建输出或 npm tarball 路径中，例如 `dist/templates/`。packaged template asset 不具有源码身份；它可以被删除，并由构建流程从 `templates/` 重新生成。Creator runtime 在仓库开发态读取仓库模板源，在发布态读取 packaged template asset。两种读取位置必须投影同一 manifest、template root、reserved 状态和 identity token 集合。
 
 [source,text]
 ----

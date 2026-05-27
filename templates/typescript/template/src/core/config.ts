@@ -1,4 +1,4 @@
-import { isAbsolute, posix } from "node:path";
+import { isAbsolute } from "node:path";
 import { parse, stringify } from "smol-toml";
 import { z } from "zod";
 import { type FileSystem, nodeFileSystem } from "../io/filesystem";
@@ -101,8 +101,7 @@ function containsBackslash(value: string) {
 }
 
 function containsParentTraversal(value: string) {
-  const normalized = posix.normalize(value).split("/");
-  return normalized.includes("..");
+  return value.split("/").includes("..");
 }
 
 function normalizeConfig(input: unknown): NormalizedConfig {

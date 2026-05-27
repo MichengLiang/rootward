@@ -50,12 +50,17 @@ export function formatStatus(data: {
   projectRoot: string;
   configPath: string;
   discoveryMode: string;
-  sources: Array<{ id: string; scanner: string; root: string; status: string }>;
+  sources: Array<{
+    id: string;
+    scanner: string;
+    root: string;
+    rootStatus: string;
+  }>;
 }) {
   const sourceLines = data.sources
     .map(
       (source) =>
-        `  ${source.id}\t${source.scanner}\t${source.root}\t${source.status}`,
+        `  ${source.id}\t${source.scanner}\t${source.root}\t${source.rootStatus}`,
     )
     .join("\n");
   return `Project: ${data.projectRoot}
@@ -67,24 +72,26 @@ ${sourceLines}
 `;
 }
 
-export function formatDiscover(data: {
-  projectRoot: string;
-  configPath: string;
-  sources: Array<{
-    id: string;
-    scanner: string;
-    root: string;
-    files: Array<{ path: string }>;
-  }>;
-  list: boolean;
-}) {
+export function formatDiscover(
+  data: {
+    projectRoot: string;
+    configPath: string;
+    sources: Array<{
+      id: string;
+      scanner: string;
+      root: string;
+      files: Array<{ path: string }>;
+    }>;
+  },
+  listFiles = false,
+) {
   const rows = data.sources
     .map(
       (source) =>
         `${source.id}\t${source.scanner}\t${source.root}\t${source.files.length}`,
     )
     .join("\n");
-  const list = data.list
+  const list = listFiles
     ? `\n\n${data.sources
         .map(
           (source) =>
@@ -127,7 +134,6 @@ Total\t\t${data.totals.files}\t${data.totals.bytes}\t${data.totals.lines}
 }
 
 export function formatDoctor(data: {
-  ok: boolean;
   diagnostics: Array<{
     level: string;
     code: string;
@@ -141,5 +147,5 @@ export function formatDoctor(data: {
       return `${diagnostic.level.toUpperCase()}\t${diagnostic.code}${source}\t${diagnostic.message}`;
     })
     .join("\n");
-  return `${data.ok ? "OK" : "ISSUES FOUND"}\n${rows}\n`;
+  return `OK\n${rows}\n`;
 }

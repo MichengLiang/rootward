@@ -1,7 +1,22 @@
 {
   "name": "create-rootward",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.1.1",
+  "description": "Create Rootward project-oriented CLI templates.",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "弥澄亮",
+    "email": "t103ooooo@stu.mju.edu.cn",
+    "url": "https://github.com/MichengLiang"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MichengLiang/rootward.git",
+    "directory": "packages/create-rootward"
+  },
+  "bugs": {
+    "url": "https://github.com/MichengLiang/rootward/issues"
+  },
+  "homepage": "https://github.com/MichengLiang/rootward#readme",
   "type": "module",
   "bin": {
     "create-rootward": "./dist/bin.mjs"
@@ -15,11 +30,31 @@
   },
   "files": [
     "dist",
-    "templates"
+    "README.md"
   ],
+  "sideEffects": false,
+  "keywords": [
+    "cli",
+    "creator",
+    "scaffold",
+    "template",
+    "typescript",
+    "project-context",
+    "rootward"
+  ],
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "build": "tsdown",
+    "build": "tsdown && node scripts/stage-templates.mjs",
     "dev": "tsx src/bin.ts",
+    "templates:check": "node scripts/check-template-source-layout.mjs",
+    "pack:check": "pnpm build && publint --level error && node scripts/check-pack.mjs",
+    "prepack": "pnpm build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "clean": "rm -rf dist coverage temporary"
@@ -30,6 +65,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.12.2",
+    "publint": "^0.3.21",
     "tsdown": "^0.21.10",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3",

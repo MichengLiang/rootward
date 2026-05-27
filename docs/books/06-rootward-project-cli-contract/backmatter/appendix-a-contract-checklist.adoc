@@ -35,8 +35,11 @@ Creator 符合 Rootward 创建器契约时，应满足以下清单。
 
 * npm package name 是 `create-rootward`。
 * bin name 是 `create-rootward`。
-* npm package 携带 Creator 构建产物和 Rootward 模板源。
-* 发布包内模板源与仓库级模板源一致。
+* repository source layout 只包含一份仓库模板源：`templates/`。
+* Creator package source tree 不包含 `packages/create-rootward/templates/` 维护路径。
+* Creator build 生成 packaged template asset。
+* npm package 携带 Creator runtime 和 packaged template asset。
+* packaged template asset 与同版本仓库模板源一致。
 * 命令表面是 `create-rootward <template> <target-dir> --cli-name <name> [identity options] [--json]`。
 * Creator 不读取 TTY，不显示 prompt，不提供交互式选择。
 * template id 集合包含 `typescript`、`python`、`rust` 和 `go`。

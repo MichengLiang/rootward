@@ -83,6 +83,7 @@ usage error 测试：
 
 Creator 契约测试必须覆盖以下行为。
 
+* Creator development tests 从仓库 `templates/` 实例化模板，不从 package-local template source 实例化模板。
 * `create-rootward typescript <dir> --cli-name <name> --package-name <name>` 创建目标目录。
 * 非空目标目录返回 `TARGET_NOT_EMPTY`。
 * 目标路径是已存在文件或不能形成稳定目标目录边界时返回 `TARGET_INVALID`。
@@ -94,6 +95,8 @@ Creator 契约测试必须覆盖以下行为。
 * 生成物 constants 的 `cliName` 和 `configDirName` 与身份一致。
 * `--json` 成功只在 stdout 输出 JSON。
 * `--json` 失败只在 stderr 输出 JSON，不混入命令解析库错误文本。
+* Package asset tests 构建 Creator package artifact，并验证 packaged template asset 与仓库 `templates/` 的 manifest 和 template root 集合一致。
+* Pack smoke tests 检查 npm tarball 携带 packaged template asset，且不携带 package-local template source、临时目录、依赖目录、覆盖率目录或构建缓存。
 * 生成后的 TypeScript 项目通过依赖安装、测试和构建。
 
 测试 fixture 必须位于当前项目或模板目录内部。测试不得跨盘扫描系统目录、用户目录或工作区外路径。临时项目应创建在模板项目内的 `temporary/`、`tmp/` 或语言测试框架提供的受控临时目录中。

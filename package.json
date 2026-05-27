@@ -1,6 +1,6 @@
 {
   "name": "rootward",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.33.0",
@@ -13,7 +13,11 @@
     "typecheck": "pnpm --filter create-rootward typecheck",
     "test": "pnpm --dir docs test && pnpm --filter create-rootward test",
     "build": "pnpm --dir docs build && pnpm --filter create-rootward build",
-    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+    "versions:check": "node scripts/check-versions.mjs",
+    "templates:check": "pnpm --filter create-rootward templates:check",
+    "pack:check": "pnpm --filter create-rootward pack:check",
+    "smoke:creator": "rm -rf temporary && node packages/create-rootward/dist/bin.mjs typescript temporary/smoke-tool --cli-name smoke-tool --package-name smoke-tool --json >/dev/null && rm -rf temporary",
+    "check": "pnpm versions:check && pnpm templates:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm pack:check && pnpm smoke:creator"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.14",

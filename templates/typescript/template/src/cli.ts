@@ -185,14 +185,18 @@ export async function runCli(
       followSymlinks?: boolean;
       includeHidden?: boolean;
     }) => {
-      await capture(state, commandOptions.json, formatDiscover, () =>
-        discoverCommand({
-          cwd,
-          project: commandOptions.project,
-          source: commandOptions.source,
-          list: commandOptions.list,
-          discoveryOverrides: discoveryOverrides(commandOptions),
-        }),
+      await capture(
+        state,
+        commandOptions.json,
+        (data) => formatDiscover(data, commandOptions.list ?? false),
+        () =>
+          discoverCommand({
+            cwd,
+            project: commandOptions.project,
+            source: commandOptions.source,
+            list: commandOptions.list,
+            discoveryOverrides: discoveryOverrides(commandOptions),
+          }),
       );
     },
   );

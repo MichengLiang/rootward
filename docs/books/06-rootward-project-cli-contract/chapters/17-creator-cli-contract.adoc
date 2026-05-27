@@ -5,7 +5,7 @@ Rootward Creator CLI 是 Rootward 的默认模板实例化入口。它通过 npm
 
 Creator package name 固定为 `create-rootward`。Creator bin name 固定为 `create-rootward`。`npm create rootward`、`pnpm create rootward`、`npx create-rootward` 和 `pnpm dlx create-rootward` 都指向同一个 Creator 命令面。
 
-Creator npm package 必须包含 Creator 构建产物和 Rootward 模板源。模板源不作为独立 npm 包发布；Creator 版本就是模板集合版本。
+Creator npm package 必须包含 Creator runtime 和 packaged template asset。packaged template asset 来源于同一版本的仓库模板源，并随 Creator package 版本一起分发。模板源不作为独立 npm 包发布，也不在 Creator package source tree 中维护第二份副本。Creator package version 是 Creator runtime 与 packaged template asset 的共同版本边界。
 
 命令表面固定为：
 

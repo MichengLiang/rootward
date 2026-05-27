@@ -2,10 +2,13 @@
 
 Project-oriented CLI templates for TypeScript, Python, Rust, and Go.
 
-Rootward defines a cross-language contract for developer CLIs that need a project context before they run business logic: initialize a hidden tool directory, discover the project root from the current working directory, load project-local TOML configuration, expand source globs, respect `.gitignore`, dispatch scanner registries, and expose stable human and JSON command output.
+[![npm version](https://img.shields.io/npm/v/create-rootward.svg)](https://www.npmjs.com/package/create-rootward)
+[![CI](https://github.com/MichengLiang/rootward/actions/workflows/ci.yml/badge.svg)](https://github.com/MichengLiang/rootward/actions/workflows/ci.yml)
+[![Pages](https://github.com/MichengLiang/rootward/actions/workflows/pages.yml/badge.svg)](https://github.com/MichengLiang/rootward/actions/workflows/pages.yml)
+[![License](https://img.shields.io/npm/l/create-rootward.svg)](./LICENSE)
+[![Node.js](https://img.shields.io/node/v/create-rootward.svg)](./packages/create-rootward/package.json)
 
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
-[![Docs](https://github.com/MichengLiang/rootward/actions/workflows/pages.yml/badge.svg)](https://github.com/MichengLiang/rootward/actions/workflows/pages.yml)
+Rootward defines a cross-language contract for developer CLIs that need a project context before they run business logic: initialize a hidden tool directory, discover the project root from the current working directory, load project-local TOML configuration, expand source globs, respect `.gitignore`, dispatch scanner registries, and expose stable human and JSON command output.
 
 ## What Rootward Is
 
@@ -32,6 +35,34 @@ The contract fixes the behavior that long-lived project tools repeatedly need:
 | Python | Specified implementation | uv, Typer, Pydantic v2, tomlkit, wcmatch, pathspec, pytest, Ruff, ty |
 | Rust | Specified implementation | clap derive, serde, toml, ignore, thiserror, camino, assert_cmd, assert_fs, insta |
 | Go | Specified implementation | Cobra, go-toml/v2, gobwas/glob, go-git gitignore, standard testing |
+
+## Create A CLI
+
+Create a TypeScript Rootward CLI:
+
+```bash
+pnpm create rootward typescript my-tool --cli-name my-tool --package-name my-tool
+```
+
+Equivalent npm entry points:
+
+```bash
+npm create rootward typescript my-tool -- --cli-name my-tool --package-name my-tool
+npx create-rootward typescript my-tool --cli-name my-tool --package-name my-tool
+```
+
+Then run the generated project:
+
+```bash
+cd my-tool
+pnpm install
+pnpm test
+pnpm build
+pnpm dev -- init
+pnpm dev -- discover --json
+```
+
+The TypeScript template is implemented. Python, Rust, and Go template IDs are reserved and return `TEMPLATE_NOT_IMPLEMENTED` until their template sources satisfy the Rootward contract.
 
 ## Documentation
 
@@ -71,9 +102,41 @@ docs/
     06-rootward-project-cli-contract/
   scripts/
   test/
+packages/
+  create-rootward/
+templates/
+  typescript/
+  python/
+  rust/
+  go/
 ```
 
-`docs/` is an AsciiDoc book workspace. Build outputs, temporary material, and dependencies are ignored by Git.
+`docs/` is an AsciiDoc book workspace. `templates/` is the only maintainer-edited template source. `packages/create-rootward` is the npm Creator package; its build creates `dist/templates` from the repository template source for publishing.
+
+## Development
+
+```bash
+pnpm install
+pnpm check
+```
+
+Useful focused commands:
+
+```bash
+pnpm --filter create-rootward test
+pnpm --filter create-rootward pack:check
+pnpm --dir docs build
+```
+
+## Release State
+
+`create-rootward` is prepared for public npm publishing. Tag releases use `v<package-version>`, run the full check suite, publish the Creator package with npm provenance, and create a GitHub release from `CHANGELOG.md`.
+
+Rootward keeps exactly one visible template source in `templates/`. Packaged template assets are generated into `packages/create-rootward/dist/templates` during build and are not maintained by hand.
+
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md).
 
 ## License
 

@@ -87,9 +87,19 @@ describe("__ROOTWARD_CLI_NAME__ project template", () => {
   it("initializes a project context with config, cache, and state directories", async () => {
     const root = await makeTempProject();
 
-    const result = await runCli(["init"], { cwd: root });
+    const result = await runCli(["init", "--json"], { cwd: root });
 
     expect(result).toMatchObject({ exitCode: 0, stderr: "" });
+    expect(parseJson(result.stdout)).toMatchObject({
+      ok: true,
+      data: {
+        projectRoot: root,
+        configDir: join(root, configDirName),
+        configPath: join(root, configDirName, "config.toml"),
+        created: ["config", "cache", "state"],
+        overwritten: false,
+      },
+    });
     await expect(
       readFile(join(root, configDirName, "config.toml"), "utf8"),
     ).resolves.toBe(defaultConfigToml);
@@ -160,7 +170,26 @@ describe("__ROOTWARD_CLI_NAME__ project template", () => {
 
     expect(parseJson(fromRoot.stdout)).toMatchObject({
       ok: true,
-      data: { projectRoot: root, discoveryMode: "cwd-upward", sourceCount: 2 },
+      data: {
+        projectRoot: root,
+        configPath: join(root, configDirName, "config.toml"),
+        discoveryMode: "cwd-upward",
+        sourceCount: 2,
+        sources: expect.arrayContaining([
+          expect.objectContaining({
+            id: "docs",
+            root: "docs",
+            scanner: "text",
+            rootStatus: "directory",
+          }),
+          expect.objectContaining({
+            id: "python",
+            root: "src",
+            scanner: "python",
+            rootStatus: "missing",
+          }),
+        ]),
+      },
     });
     expect(parseJson(fromChild.stdout)).toMatchObject({
       ok: true,
@@ -241,12 +270,20 @@ scanner = "text"
       outsideRoot,
       defaultConfigToml.replace('root = "docs"', 'root = "../docs"'),
     );
+    const normalizedTraversalRoot = await makeTempProject();
+    await writeConfig(
+      normalizedTraversalRoot,
+      defaultConfigToml.replace('root = "docs"', 'root = "docs/../src"'),
+    );
 
     const duplicate = await runCli(["config", "print", "--json"], {
       cwd: duplicateRoot,
     });
     const outside = await runCli(["config", "print", "--json"], {
       cwd: outsideRoot,
+    });
+    const normalizedTraversal = await runCli(["config", "print", "--json"], {
+      cwd: normalizedTraversalRoot,
     });
 
     expect(duplicate.exitCode).toBe(4);
@@ -256,6 +293,11 @@ scanner = "text"
     });
     expect(outside.exitCode).toBe(4);
     expect(parseJson(outside.stderr)).toMatchObject({
+      ok: false,
+      error: { code: "CONFIG_INVALID" },
+    });
+    expect(normalizedTraversal.exitCode).toBe(4);
+    expect(parseJson(normalizedTraversal.stderr)).toMatchObject({
       ok: false,
       error: { code: "CONFIG_INVALID" },
     });
@@ -317,6 +359,8 @@ scanner = "text"
     expect(parseJson(result.stdout)).toMatchObject({
       ok: true,
       data: {
+        projectRoot: root,
+        configPath: join(root, configDirName, "config.toml"),
         sources: [
           {
             id: "docs",
@@ -439,7 +483,8 @@ scanner = "text"
     expect(parseJson(doctor.stdout)).toMatchObject({
       ok: true,
       data: {
-        ok: true,
+        projectRoot: root,
+        configPath: join(root, configDirName, "config.toml"),
         diagnostics: expect.arrayContaining([
           expect.objectContaining({
             level: "warning",
@@ -543,6 +588,8 @@ scanner = "text"
     expect(parseJson(result.stdout)).toMatchObject({
       ok: true,
       data: {
+        projectRoot: root,
+        configPath: join(root, configDirName, "config.toml"),
         results: expect.arrayContaining([
           expect.objectContaining({
             sourceId: "docs",
@@ -559,7 +606,7 @@ scanner = "text"
             lines: 1,
           }),
         ]),
-        totals: { files: 2, bytes: 24, lines: 3 },
+        totals: { sources: 2, files: 2, bytes: 24, lines: 3 },
       },
     });
   });

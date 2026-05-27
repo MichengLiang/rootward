@@ -39,14 +39,14 @@ export async function sourceStatuses(
           id: source.id,
           scanner: source.scanner,
           root: source.root,
-          status: result.isDirectory() ? "ok" : "missing",
+          rootStatus: result.isDirectory() ? "directory" : "not-directory",
         };
       } catch {
         return {
           id: source.id,
           scanner: source.scanner,
           root: source.root,
-          status: "missing",
+          rootStatus: "missing",
         };
       }
     }),

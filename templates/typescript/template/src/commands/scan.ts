@@ -22,6 +22,7 @@ export async function scanCommand(options: ProjectCommandOptions) {
     configPath: context.configPath,
     results,
     totals: {
+      sources: results.length,
       files: results.reduce((sum, result) => sum + result.files, 0),
       bytes: results.reduce((sum, result) => sum + result.bytes, 0),
       lines: results.reduce((sum, result) => sum + result.lines, 0),
