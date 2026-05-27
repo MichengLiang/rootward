@@ -39,6 +39,11 @@ try {
     "package/dist/index.mjs",
     "package/dist/templates/typescript/manifest.json",
     "package/dist/templates/typescript/template/package.json",
+    "package/dist/templates/rust/manifest.json",
+    "package/dist/templates/rust/template/Cargo.toml",
+    "package/dist/templates/rust/template/src/main.rs",
+    "package/dist/templates/rust/template/src/core/constants.rs",
+    "package/dist/templates/rust/template/tests/cli_contract.rs",
   ];
 
   for (const entry of requiredEntries) {
@@ -52,10 +57,16 @@ try {
     "package/temporary/",
     "package/node_modules/",
     "package/coverage/",
+    "package/dist/templates/rust/template/target/",
   ];
 
+  const forbiddenSegments = ["/target/"];
+
   for (const entry of entries) {
-    if (forbiddenPrefixes.some((prefix) => entry.startsWith(prefix))) {
+    if (
+      forbiddenPrefixes.some((prefix) => entry.startsWith(prefix)) ||
+      forbiddenSegments.some((segment) => entry.includes(segment))
+    ) {
       throw new Error(`Package tarball contains forbidden entry ${entry}.`);
     }
   }

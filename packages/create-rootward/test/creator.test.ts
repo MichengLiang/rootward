@@ -66,6 +66,28 @@ async function exists(path: string) {
   }
 }
 
+async function readAllTextFiles(root: string) {
+  const texts: string[] = [];
+
+  async function walk(directory: string) {
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      const fullPath = join(directory, entry.name);
+      if (entry.isDirectory()) {
+        await walk(fullPath);
+        continue;
+      }
+      try {
+        texts.push(await readFile(fullPath, "utf8"));
+      } catch {
+        // Binary files do not participate in manifest-token residue checks.
+      }
+    }
+  }
+
+  await walk(root);
+  return texts;
+}
+
 async function run(args: string[], cwd: string) {
   return runCreator(args, { cwd, templatesRoot });
 }
@@ -164,6 +186,64 @@ describe("create-rootward", () => {
     expect(workspace).toContain('  - "."');
     expect(constants).not.toContain("__ROOTWARD_");
     expect(readme).not.toContain("__ROOTWARD_");
+  });
+
+  it("creates a Rust template with replaced identity and no manifest-token residue", async () => {
+    const parent = await makeParentDir();
+
+    const result = await run(
+      [
+        "rust",
+        "rust-tool",
+        "--cli-name",
+        "rust-tool",
+        "--crate-name",
+        "rust-tool-core",
+        "--bin-name",
+        "rust-tool-bin",
+        "--json",
+      ],
+      parent,
+    );
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stderr).toBe("");
+    expect(parseJson(result.stdout)).toMatchObject({
+      ok: true,
+      data: {
+        template: "rust",
+        identity: {
+          cliName: "rust-tool",
+          configDirName: ".rust-tool",
+          crateName: "rust-tool-core",
+          binName: "rust-tool-bin",
+        },
+      },
+    });
+
+    const target = join(parent, "rust-tool");
+    const cargoToml = await readFile(join(target, "Cargo.toml"), "utf8");
+    const constants = await readFile(
+      join(target, "src", "core", "constants.rs"),
+      "utf8",
+    );
+    const readme = await readFile(join(target, "README.md"), "utf8");
+    const manifest = JSON.parse(
+      await readFile(join(templatesRoot, "rust", "manifest.json"), "utf8"),
+    ) as { tokens: Record<string, string> };
+    const generatedTexts = await readAllTextFiles(target);
+
+    expect(cargoToml).toContain('name = "rust-tool-core"');
+    expect(cargoToml).toContain('name = "rust-tool-bin"');
+    expect(constants).toContain('pub const CLI_NAME: &str = "rust-tool";');
+    expect(constants).toContain(
+      'pub const CONFIG_DIR_NAME: &str = ".rust-tool";',
+    );
+    expect(readme).toContain("# rust-tool");
+    expect(readme).toContain(".rust-tool/config.toml");
+    for (const token of Object.keys(manifest.tokens)) {
+      expect(generatedTexts.some((text) => text.includes(token))).toBe(false);
+    }
   });
 
   it("rejects non-empty targets", async () => {
@@ -289,8 +369,30 @@ describe("create-rootward", () => {
       ["typescript", "target", "--cli-name", "tool", "--bad", "--json"],
       parent,
     );
+    const missingCrateName = await run(
+      ["rust", "target", "--cli-name", "tool", "--bin-name", "tool", "--json"],
+      parent,
+    );
+    const missingBinName = await run(
+      [
+        "rust",
+        "target",
+        "--cli-name",
+        "tool",
+        "--crate-name",
+        "tool",
+        "--json",
+      ],
+      parent,
+    );
 
-    for (const result of [missingCliName, missingPackageName, unknownOption]) {
+    for (const result of [
+      missingCliName,
+      missingPackageName,
+      unknownOption,
+      missingCrateName,
+      missingBinName,
+    ]) {
       expect(result.exitCode).toBe(2);
       expect(result.stdout).toBe("");
       expect(result.stderr.trim().startsWith("{")).toBe(true);

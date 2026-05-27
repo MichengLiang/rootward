@@ -19,6 +19,8 @@ export type CreateOptions = {
   targetDir: string;
   cliName?: string | undefined;
   packageName?: string | undefined;
+  crateName?: string | undefined;
+  binName?: string | undefined;
   templatesRoot?: string | undefined;
 };
 
@@ -38,6 +40,58 @@ const defaultTemplateRootCandidates = [
 
 function validateCliName(value: string) {
   return /^[a-z][a-z0-9-]*$/.test(value);
+}
+
+function optionNameForIdentityKey(identityKey: string) {
+  return `--${identityKey.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`)}`;
+}
+
+function optionValueForIdentityKey(
+  options: CreateOptions,
+  identityKey: string,
+) {
+  switch (identityKey) {
+    case "cliName":
+      return options.cliName;
+    case "packageName":
+      return options.packageName;
+    case "crateName":
+      return options.crateName;
+    case "binName":
+      return options.binName;
+    default:
+      return undefined;
+  }
+}
+
+function formatDerivedIdentity(
+  format: string,
+  identity: Record<string, string>,
+) {
+  return format.replaceAll(/\{([A-Za-z][A-Za-z0-9]*)\}/g, (_, key: string) => {
+    const value = identity[key];
+    if (value === undefined) {
+      throw createError("USAGE_ERROR", "Derived identity value is missing.", {
+        identityKey: key,
+      });
+    }
+    return value;
+  });
+}
+
+function validateIdentityPattern(
+  identityKey: string,
+  value: string,
+  pattern: string,
+) {
+  const regex = new RegExp(pattern);
+  if (!regex.test(value)) {
+    throw createError("USAGE_ERROR", "Identity value is not valid.", {
+      identityKey,
+      value,
+      pattern,
+    });
+  }
 }
 
 function templateRootFor(templatesRoot: string, manifest: TemplateManifest) {
@@ -95,33 +149,49 @@ async function ensureTarget(targetDir: string) {
 }
 
 function identityFor(options: CreateOptions, manifest: TemplateManifest) {
-  if (!options.cliName) {
-    throw createError("USAGE_ERROR", "Missing required option --cli-name.", {
-      option: "--cli-name",
-    });
-  }
-  if (!validateCliName(options.cliName)) {
-    throw createError("USAGE_ERROR", "CLI name is not valid.", {
-      cliName: options.cliName,
-    });
-  }
+  const identity: Record<string, string> = {};
 
-  const identity: Record<string, string> = {
-    cliName: options.cliName,
-    configDirName: `.${options.cliName}`,
-  };
+  for (const [identityKey, slot] of Object.entries(manifest.identity)) {
+    if (slot.derivedFrom) {
+      const sourceValue = identity[slot.derivedFrom];
+      if (sourceValue === undefined) {
+        throw createError(
+          "USAGE_ERROR",
+          "Derived identity source is missing.",
+          {
+            identityKey,
+            derivedFrom: slot.derivedFrom,
+          },
+        );
+      }
+      identity[identityKey] = slot.format
+        ? formatDerivedIdentity(slot.format, identity)
+        : sourceValue;
+      continue;
+    }
 
-  if (manifest.id === "typescript") {
-    if (!options.packageName) {
+    const value = optionValueForIdentityKey(options, identityKey);
+    if (slot.required && !value) {
       throw createError(
         "USAGE_ERROR",
-        "Missing required option --package-name.",
+        `Missing required option ${optionNameForIdentityKey(identityKey)}.`,
         {
-          option: "--package-name",
+          option: optionNameForIdentityKey(identityKey),
         },
       );
     }
-    identity.packageName = options.packageName;
+    if (!value) {
+      continue;
+    }
+    if (identityKey === "cliName" && !validateCliName(value)) {
+      throw createError("USAGE_ERROR", "CLI name is not valid.", {
+        cliName: value,
+      });
+    }
+    if (slot.pattern) {
+      validateIdentityPattern(identityKey, value, slot.pattern);
+    }
+    identity[identityKey] = value;
   }
 
   return identity;
@@ -144,6 +214,8 @@ async function rewriteTokens(
     ".toml",
     ".yml",
     ".yaml",
+    ".rs",
+    ".lock",
   ]);
 
   async function walk(dir: string) {
@@ -203,8 +275,14 @@ async function rewriteTokens(
   await walk(targetDir);
 }
 
-async function assertNoTokenResidue(targetDir: string) {
-  async function walk(dir: string): Promise<string | undefined> {
+async function assertNoTokenResidue(
+  targetDir: string,
+  manifest: TemplateManifest,
+) {
+  const tokens = Object.keys(manifest.tokens);
+  async function walk(
+    dir: string,
+  ): Promise<{ path: string; token: string } | undefined> {
     for (const entry of await readdir(dir, { withFileTypes: true })) {
       const fullPath = join(dir, entry.name);
       if (entry.isDirectory()) {
@@ -220,8 +298,10 @@ async function assertNoTokenResidue(targetDir: string) {
       } catch {
         continue;
       }
-      if (text.includes("__ROOTWARD_")) {
-        return fullPath;
+      for (const token of tokens) {
+        if (text.includes(token)) {
+          return { path: fullPath, token };
+        }
       }
     }
     return undefined;
@@ -233,7 +313,8 @@ async function assertNoTokenResidue(targetDir: string) {
       "TOKEN_RESIDUE_FOUND",
       "Generated project contains token residue.",
       {
-        path: residue,
+        path: residue.path,
+        token: residue.token,
       },
     );
   }
@@ -315,7 +396,7 @@ export async function createProject(options: CreateOptions) {
   }
 
   await rewriteTokens(targetDir, manifest, identity);
-  await assertNoTokenResidue(targetDir);
+  await assertNoTokenResidue(targetDir, manifest);
   await runPostcheck(targetDir, manifest);
 
   return ok<CreateData>({

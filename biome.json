@@ -14,7 +14,8 @@
       "!templates/*/template/node_modules",
       "!templates/*/template/dist",
       "!templates/*/template/coverage",
-      "!templates/*/template/temporary"
+      "!templates/*/template/temporary",
+      "!templates/*/template/target"
     ]
   },
   "formatter": {

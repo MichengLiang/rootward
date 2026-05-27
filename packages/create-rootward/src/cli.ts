@@ -20,7 +20,12 @@ type CommandState = {
 };
 
 function hasMissingOptionValue(args: string[]) {
-  const valueOptions = new Set(["--cli-name", "--package-name"]);
+  const valueOptions = new Set([
+    "--cli-name",
+    "--package-name",
+    "--crate-name",
+    "--bin-name",
+  ]);
   for (const [index, arg] of args.entries()) {
     if (!valueOptions.has(arg)) {
       continue;
@@ -79,6 +84,8 @@ export async function runCreator(
     .argument("<target-dir>")
     .requiredOption("--cli-name <name>", "generated CLI name")
     .option("--package-name <name>", "TypeScript package name")
+    .option("--crate-name <name>", "Rust crate name")
+    .option("--bin-name <name>", "Rust binary target name")
     .option("--json", "write JSON output")
     .exitOverride()
     .configureOutput({
@@ -92,6 +99,8 @@ export async function runCreator(
         commandOptions: {
           cliName: string;
           packageName?: string;
+          crateName?: string;
+          binName?: string;
           json?: boolean;
         },
       ) => {
@@ -102,6 +111,8 @@ export async function runCreator(
           targetDir,
           cliName: commandOptions.cliName,
           packageName: commandOptions.packageName,
+          crateName: commandOptions.crateName,
+          binName: commandOptions.binName,
           templatesRoot: options.templatesRoot,
         });
       },

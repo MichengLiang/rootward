@@ -12,6 +12,7 @@ const excludedNames = new Set([
   "dist",
   "coverage",
   "temporary",
+  "target",
   ".turbo",
 ]);
 

@@ -1,7 +1,7 @@
 {
   "id": "rust",
   "language": "rust",
-  "status": "reserved",
+  "status": "implemented",
   "templateRoot": "template",
   "identity": {
     "cliName": {
@@ -13,14 +13,34 @@
       "format": ".{cliName}"
     },
     "crateName": {
-      "required": true
+      "required": true,
+      "pattern": "^[a-z][a-z0-9_-]*$"
     },
     "binName": {
-      "required": true
+      "required": true,
+      "pattern": "^[a-z][a-z0-9-]*$"
     }
   },
-  "tokens": {},
-  "exclude": [],
-  "postcheck": [],
-  "nextCommands": []
+  "tokens": {
+    "rootward-token-cli-name": "cliName",
+    ".rootward-token-config-dir-name": "configDirName",
+    "rootward_token_crate_name": "crateName",
+    "rootward-token-bin-name": "binName"
+  },
+  "exclude": ["target", "temporary"],
+  "postcheck": [
+    "Cargo.toml",
+    "README.md",
+    "src/main.rs",
+    "src/lib.rs",
+    "src/cli.rs",
+    "src/core/constants.rs",
+    "tests/cli_contract.rs"
+  ],
+  "nextCommands": [
+    "cargo fmt --check",
+    "cargo clippy --all-targets --all-features -- -D warnings",
+    "cargo test",
+    "cargo build"
+  ]
 }

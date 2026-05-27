@@ -9,3 +9,6 @@ docs/tmp/
 dist/
 coverage/
 temporary/
+
+templates/rust/template/target/
+templates/rust/template/temporary/

@@ -16,9 +16,11 @@
     "build": "pnpm --dir docs build && pnpm --filter create-rootward build",
     "versions:check": "node scripts/check-versions.mjs",
     "templates:check": "pnpm --filter create-rootward templates:check",
+    "templates:rust:check": "node scripts/check-rust-template.mjs",
     "pack:check": "pnpm --filter create-rootward pack:check",
     "smoke:creator": "rm -rf temporary && node packages/create-rootward/dist/bin.mjs typescript temporary/smoke-tool --cli-name smoke-tool --package-name smoke-tool --json >/dev/null && rm -rf temporary",
-    "check": "pnpm versions:check && pnpm templates:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm pack:check && pnpm smoke:creator"
+    "smoke:creator:rust": "node scripts/smoke-creator-rust.mjs",
+    "check": "pnpm versions:check && pnpm templates:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm pack:check && pnpm templates:rust:check && pnpm smoke:creator && pnpm smoke:creator:rust"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.14",
