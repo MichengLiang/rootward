@@ -67,6 +67,10 @@ type CliError = {
 | `3`
 | 显式 `--project` 指定的根目录下不存在 `.foo/config.toml`。
 
+| `INIT_TARGET_INVALID`
+| `3`
+| `init` 目标路径不存在或不是目录。
+
 | `PROJECT_ALREADY_INITIALIZED`
 | `3`
 | `init` 目标目录已有配置且未传 `--force`。
@@ -102,11 +106,15 @@ type CliError = {
 | `SCAN_FAILED`
 | `5`
 | scanner 执行失败。
+
+| `INTERNAL_ERROR`
+| `1`
+| 未归档运行时失败。
 |===
 
 语言实现必须把内部错误映射到这些稳定错误码。TypeScript 的 exception、Python 的 exception、Rust 的 error enum 和 Go 的 error value 都不能直接泄漏为公共错误类型。
 
-未映射运行时失败使用退出码 `1`。该分支表示模板实现存在未归档错误路径，不是业务错误的常规表达方式。语言模板的测试应覆盖已知错误码，减少运行时失败分支。
+未映射运行时失败使用 `INTERNAL_ERROR` 和退出码 `1`。该分支表示模板实现存在未归档错误路径，不是业务错误的常规表达方式。语言模板的测试应覆盖已知错误码，减少运行时失败分支。
 
 错误码表的快速索引见 xref:appendix-c-error-code-table[]。
 

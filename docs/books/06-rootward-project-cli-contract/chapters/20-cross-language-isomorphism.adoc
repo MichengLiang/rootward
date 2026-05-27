@@ -1,7 +1,7 @@
 [#cross-language-isomorphism]
 == 跨语言同构原则
 
-Rootward 的本体是项目型 CLI 契约，不是任意一种语言实现。TypeScript、Python、Rust 和 Go 模板必须共享同一组公共行为，并允许各语言使用符合自身生态的实现工具。
+Rootward 生成物契约的本体是项目型 CLI 公共行为，不是任意一种语言实现。TypeScript、Python、Rust 和 Go 语言模板在生成物层必须共享同一组公共行为，并允许各语言使用符合自身生态的实现工具。
 
 跨语言必须同构的对象包括：
 
@@ -29,7 +29,7 @@ Rootward 的本体是项目型 CLI 契约，不是任意一种语言实现。Typ
 * 测试框架和构建命令。
 * 包管理和发布元数据。
 
-允许差异不能改变公共契约。Python 的 Typer、Rust 的 clap、Go 的 Cobra 和 TypeScript 的 Commander 都只承担命令表面。它们不能改变 Rootward 的命令语义、错误码、JSON envelope 或项目发现规则。
+允许差异不能改变生成物公共契约。Python 的 Typer、Rust 的 clap、Go 的 Cobra 和 TypeScript 的 Commander 都只承担命令表面。它们不能改变 Rootward 的命令语义、错误码、JSON envelope 或项目发现规则。
 
 语言实现章节不提供通用编程教程。它们定义每个依赖在 Rootward 中承担的对象责任。实现者需要阅读相应语言官方文档来掌握 API，但不能用官方文档中的默认习惯覆盖 Rootward 契约。
 

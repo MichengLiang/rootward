@@ -17,6 +17,10 @@
 | `3`
 | 显式项目根缺少 Rootward 配置。调用方指定了错误项目根，或目标项目尚未初始化。
 
+| `INIT_TARGET_INVALID`
+| `3`
+| `init` 目标路径不存在或不是目录。用户需要选择已经存在的目录作为初始化目标。
+
 | `PROJECT_ALREADY_INITIALIZED`
 | `3`
 | 目标项目已有配置。用户需要停止重复初始化，或使用 `--force`。
@@ -52,6 +56,10 @@
 | `SCAN_FAILED`
 | `5`
 | scanner 执行失败。维护者需要检查 scanner 实现或输入文件。
+
+| `INTERNAL_ERROR`
+| `1`
+| 未归档运行时失败。维护者需要把该路径归档为稳定错误码或修复实现缺陷。
 |===
 
 错误对象结构、退出码分层和诊断 code 边界见 xref:error-codes-and-exit-codes[]。

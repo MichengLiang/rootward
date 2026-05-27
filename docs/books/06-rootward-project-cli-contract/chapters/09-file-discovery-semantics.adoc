@@ -50,7 +50,7 @@ type DiscoveredSource = {
 
 隐藏路径判断使用 project-root-relative POSIX path。`include_hidden = false` 时，路径任意 segment 以 `.` 开头的文件或目录都不进入 discovered files。该规则使 `.git/`、`.foo/`、`.venv/` 和 `docs/.draft.md` 在默认发现中保持不可见。
 
-符号链接规则服务项目边界。`follow_symlinks = false` 时，发现过程不跟随 symlink，也不把 symlink file 当成普通业务文件。`follow_symlinks = true` 时，语言实现仍必须防止循环、越界和重复路径污染公共结果。
+符号链接规则服务项目边界。`follow_symlinks = false` 时，发现过程不跟随 symlink，也不把 symlink file 当成普通业务文件。`follow_symlinks = true` 时，语言实现仍必须防止循环、越界和重复路径污染公共结果。指向 project root 外部的 symlink 目标不得进入 discovered files；被纳入结果的文件必须能表示为 project-root-relative POSIX path。遍历库报告 symlink 循环、权限错误或路径规范化失败时返回 `DISCOVERY_FAILED`。
 
 source 匹配为空时，`discover` 返回成功并显示 `0 files`。空 source 是合法状态。`doctor` 会把空 source 报告为 warning，见 xref:doctor-diagnostics[]。
 

@@ -1,6 +1,31 @@
 [#appendix-d-language-dependency-table]
 == 语言依赖表
 
+Rootward Creator 层依赖如下。
+
+[cols="1,2,4",options="header"]
+|===
+| 层位 | 依赖 | Rootward 职责
+
+| Creator
+| Commander
+| 创建器命令表面。
+
+| Creator
+| Zod
+| manifest、Creator 输出和 Creator 错误对象的运行时边界。
+
+| Creator
+| tsdown
+| npm 创建器包的 ESM 构建和类型声明输出。
+
+| Creator
+| Vitest
+| 创建器契约测试。
+|===
+
+Rootward 生成物层依赖如下。
+
 [cols="1,2,4",options="header"]
 |===
 | 语言 | 依赖 | Rootward 职责
@@ -19,7 +44,11 @@
 
 | TypeScript
 | globby
-| glob 展开和 gitignore-aware 文件发现。
+| glob 展开、hidden 和 symlink-aware 文件发现。
+
+| TypeScript
+| ignore
+| 项目根 `.gitignore` pattern matching。
 
 | Python
 | uv
@@ -90,4 +119,4 @@
 | go-git ignore 读取所需的文件系统适配。
 |===
 
-依赖表只列 Rootward 模板层依赖。业务工具可以增加业务 parser、远程客户端、数据库驱动或 UI 依赖；新增依赖必须通过 xref:design-point-admission[] 判断其层位。
+依赖表只列 Rootward Creator 层和语言模板生成物层依赖。业务工具可以增加业务 parser、远程客户端、数据库驱动或 UI 依赖；新增依赖必须通过 xref:design-point-admission[] 判断其层位。

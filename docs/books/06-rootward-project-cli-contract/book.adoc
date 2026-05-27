@@ -67,33 +67,44 @@ include::chapters/15-human-and-json-output.adoc[]
 
 include::chapters/16-error-codes-and-exit-codes.adoc[]
 
-= 第五部：跨语言实现
+= 第五部：Rootward Creator 与模板分发
 
 [partintro]
-第五部定义跨语言同构原则，并说明 TypeScript、Python、Rust 和 Go 模板如何承载同一契约。
+第五部定义 Rootward Creator CLI、npm 分发面、模板 manifest、身份替换、目标目录规则和创建器错误语义。
 
-include::chapters/17-cross-language-isomorphism.adoc[]
+include::chapters/17-creator-cli-contract.adoc[]
 
-include::chapters/18-typescript-template.adoc[]
+include::chapters/18-template-manifest-and-source.adoc[]
 
-include::chapters/19-python-template.adoc[]
+include::chapters/19-creator-errors-and-exit-codes.adoc[]
 
-include::chapters/20-rust-template.adoc[]
-
-include::chapters/21-go-template.adoc[]
-
-= 第六部：验证、演进与边界控制
+= 第六部：跨语言实现
 
 [partintro]
-第六部定义测试契约、设计点准入规则、模板复制责任、相邻对象和未来期权。
+第六部定义跨语言同构原则，并说明 TypeScript、Python、Rust 和 Go 模板如何承载同一契约。
 
-include::chapters/22-test-contract.adoc[]
+include::chapters/20-cross-language-isomorphism.adoc[]
 
-include::chapters/23-design-point-admission.adoc[]
+include::chapters/21-typescript-template.adoc[]
 
-include::chapters/24-template-copy-responsibilities.adoc[]
+include::chapters/22-python-template.adoc[]
 
-include::chapters/25-neighbor-objects-and-future-options.adoc[]
+include::chapters/23-rust-template.adoc[]
+
+include::chapters/24-go-template.adoc[]
+
+= 第七部：验证、演进与边界控制
+
+[partintro]
+第七部定义测试契约、设计点准入规则、模板实例化责任、相邻对象和未来期权。
+
+include::chapters/25-test-contract.adoc[]
+
+include::chapters/26-design-point-admission.adoc[]
+
+include::chapters/27-template-instantiation-responsibilities.adoc[]
+
+include::chapters/28-neighbor-objects-and-future-options.adoc[]
 
 [appendix]
 include::backmatter/appendix-a-contract-checklist.adoc[]

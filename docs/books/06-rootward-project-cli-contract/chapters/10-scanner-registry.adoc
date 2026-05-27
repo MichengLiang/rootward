@@ -32,6 +32,6 @@ source 指向未注册 scanner 时，`scan` 返回 `SCANNER_NOT_REGISTERED`。`d
 
 Rootward 模板默认注册 `text` 和 `python` 两个 scanner key。两者在模板中可以使用同一个基础文本扫描实现，统计文件数、字节数和行数。该默认实现证明 registry 分发结构成立，不表达完整 Markdown、Python、RST 或 AsciiDoc 解析能力。
 
-业务工具复制模板后，可以替换 scanner 实现，也可以替换默认 registry。替换 scanner 不改变 source 声明模型，不改变文件发现语义，不改变 `ScannerResult` 的公共字段。业务工具需要额外输出时，应先判断该输出属于 scanner result、业务命令输出、debug 面还是未来期权。
+业务工具由 Creator 实例化模板后，可以替换 scanner 实现，也可以替换默认 registry。替换 scanner 不改变 source 声明模型，不改变文件发现语义，不改变 `ScannerResult` 的公共字段。业务工具需要额外输出时，应先判断该输出属于 scanner result、业务命令输出、debug 面还是未来期权。
 
 scanner registry 是期权式准备。它保留业务处理替换能力，但不把插件市场、动态加载、远程扩展和生态发布机制写入 Rootward 核心契约。

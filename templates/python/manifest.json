@@ -1,0 +1,26 @@
+{
+  "id": "python",
+  "language": "python",
+  "status": "reserved",
+  "templateRoot": "template",
+  "identity": {
+    "cliName": {
+      "required": true,
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "configDirName": {
+      "derivedFrom": "cliName",
+      "format": ".{cliName}"
+    },
+    "projectName": {
+      "required": true
+    },
+    "moduleName": {
+      "required": true
+    }
+  },
+  "tokens": {},
+  "exclude": [],
+  "postcheck": [],
+  "nextCommands": []
+}

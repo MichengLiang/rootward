@@ -21,10 +21,10 @@ export const configFileName = "config.toml";
 
 隐藏目录不从 package name 自动推导。scoped package、Go module path 和 Python distribution name 可以包含不适合作为项目目录名的字符或路径结构。CLI name 和 config directory name 是用户可见公共契约，必须由模板维护者显式确定。
 
-所有帮助文本、错误消息、初始化路径、项目发现路径和配置路径都从这些身份常量派生。模板复制者必须替换身份常量、包元数据、README 中的命令名、测试断言和示例路径。身份替换责任见 xref:template-copy-responsibilities[]。
+所有帮助文本、错误消息、初始化路径、项目发现路径和配置路径都从这些身份常量派生。Creator 必须在实例化时替换身份常量、包元数据、README 中的命令名、测试断言和示例路径。身份替换责任见 xref:template-instantiation-responsibilities[]。
 
 工具身份的稳定性直接影响项目语境。`.foo/config.toml` 一旦进入项目，脚本、CI、文档和用户习惯都会依赖该路径。工具不应在没有迁移规则的情况下改变 CLI name 或 config directory name。
 
 Rootward 不规定业务工具的品牌命名方式。Rootward 只规定命令身份和项目目录身份必须显式、稳定、可测试。
 
-语言实现不得把身份常量散落在命令、输出、测试和 README 生成逻辑中。散落身份会使模板复制者遗漏替换点，并造成帮助文本、配置路径和测试断言之间的语义分裂。
+语言实现不得把身份常量散落在命令、输出、测试和 README 生成逻辑中。散落身份会使 Creator 漏掉替换点，并造成帮助文本、配置路径和测试断言之间的语义分裂。

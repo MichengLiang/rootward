@@ -1,0 +1,111 @@
+[#template-manifest-and-source]
+== 模板 Manifest 与模板源
+
+Rootward language template 是 Creator 可以读取并实例化的模板源。每个语言模板目录固定包含 manifest 和 template root。
+
+Rootward repository 的模板体系目录固定为：
+
+[source,text]
+----
+packages/
+  create-rootward/
+templates/
+  typescript/
+  python/
+  rust/
+  go/
+----
+
+`packages/create-rootward/` 承载 npm Creator package。`templates/` 承载仓库级模板源。Creator package 发布时必须携带同一份模板源，使 npm package 版本、Creator 行为和模板集合保持同一版本边界。发布包内模板源是仓库级模板源的打包副本；两者的 manifest、template root 和 reserved 状态必须一致。
+
+[source,text]
+----
+templates/<template-id>/
+  manifest.json
+  template/
+----
+
+`manifest.json` 是 Creator 读取的模板元数据。`template/` 是复制给用户的生成物源。Rootward 仓库维护脚本、Creator 测试 fixture、构建产物和临时目录不得进入 `template/`，除非它们本来就是生成物应拥有的文件。
+
+manifest 顶层字段固定为：
+
+[source,json]
+----
+{
+  "id": "typescript",
+  "language": "typescript",
+  "status": "implemented",
+  "templateRoot": "template",
+  "identity": {},
+  "tokens": {},
+  "exclude": [],
+  "postcheck": [],
+  "nextCommands": []
+}
+----
+
+`id` 是 Creator 命令中的 template id。`language` 是语言分类。`status` 只能是 `implemented` 或 `reserved`。`implemented` 表示 Creator 可以实例化该模板。`reserved` 表示仓库保留该语言模板目录，但 Creator 不承诺生成该语言项目。
+
+Rootward v0.1 中，TypeScript 模板 status 为 `implemented`，Python、Rust 和 Go 模板 status 为 `reserved`。reserved 目录必须包含 manifest 和 template root；Creator 请求 reserved 模板时返回 `TEMPLATE_NOT_IMPLEMENTED`，不得生成空项目或半成品项目。
+
+`identity` 定义模板需要的身份槽位。TypeScript manifest 的身份槽位固定为：
+
+[source,json]
+----
+{
+  "cliName": {
+    "required": true,
+    "pattern": "^[a-z][a-z0-9-]*$"
+  },
+  "configDirName": {
+    "derivedFrom": "cliName",
+    "format": ".{cliName}"
+  },
+  "packageName": {
+    "required": true
+  }
+}
+----
+
+`tokens` 定义模板源中的机器占位符。模板源必须使用显式 Rootward token，不得依赖自然示例词替换。TypeScript 模板固定使用以下 token：
+
+[source,text]
+----
+__ROOTWARD_CLI_NAME__
+__ROOTWARD_CONFIG_DIR_NAME__
+__ROOTWARD_PACKAGE_NAME__
+----
+
+`foo` 可以在本书中作为 CLI name 的解释性例子存在；模板源中不得把 `foo` 当作待替换身份。Creator 替换完成后，生成物中不得残留 `__ROOTWARD_` token。残留 token 返回 `TOKEN_RESIDUE_FOUND`。
+
+`exclude` 定义复制时排除的路径。TypeScript 模板固定排除：
+
+[source,json]
+----
+[
+  "node_modules",
+  "dist",
+  "coverage",
+  "temporary",
+  ".turbo"
+]
+----
+
+`postcheck` 定义生成后必须存在的路径。TypeScript 模板至少检查以下路径：
+
+[source,text]
+----
+package.json
+README.md
+src/bin.ts
+src/cli.ts
+src/core/constants.ts
+src/index.test.ts
+tsconfig.json
+tsdown.config.ts
+vitest.config.ts
+----
+
+`nextCommands` 定义 Creator 成功输出中的建议命令。Creator 不自动执行这些命令。
+
+模板源不得依赖 Rootward 仓库内部 workspace package。生成后的项目必须能在目标目录中独立安装依赖、运行测试和构建。

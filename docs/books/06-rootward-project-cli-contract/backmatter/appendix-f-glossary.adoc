@@ -8,6 +8,21 @@
 | Rootward 契约
 | 跨语言项目型 CLI 模板共同承载的公共规则集合。该契约定义项目语境、配置、文件发现、scanner 分发、输出投影、错误语义和测试标准。
 
+| Rootward Creator CLI
+| 通过 npm 分发的非交互模板实例化命令。它读取模板 manifest，把 language template 写入目标目录，并提供独立的 Creator 输出和错误语义。
+
+| language template
+| Creator 可以实例化的语言模板源。每个 language template 包含 manifest 和 template root。
+
+| generated CLI
+| Creator 实例化 language template 后得到的项目型 CLI。generated CLI 服从生成物契约，不依赖 Rootward 仓库内部路径。
+
+| manifest
+| 描述 language template 身份、状态、template root、identity slots、tokens、exclude、postcheck 和 next commands 的 JSON 文件。
+
+| identity token
+| 模板源中由 Creator 替换的显式占位符，例如 `__ROOTWARD_CLI_NAME__`。生成物不得残留 identity token。
+
 | 项目型 CLI
 | 在文件系统项目中运行，并以项目根、项目配置和项目目录树为输入语境的命令行人工制品。
 

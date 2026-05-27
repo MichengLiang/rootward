@@ -1,0 +1,95 @@
+[#typescript-template]
+== TypeScript 模板实现
+
+TypeScript 模板是 Rootward language template 的一个实现。该模板由 Creator 实例化为独立 Node 项目。生成物使用 Node 24、TypeScript、ESM、Commander、Zod、smol-toml、globby、ignore、tsdown、Vitest 和 Biome。
+
+TypeScript 模板源位于：
+
+[source,text]
+----
+templates/typescript/
+  manifest.json
+  template/
+----
+
+`templates/typescript/manifest.json` 的 status 必须是 `implemented`。`template/` 中的生成物源必须使用 Rootward identity tokens。Creator 生成后必须替换 package name、bin key、constants、README 和测试断言。
+
+TypeScript 模板源固定使用以下 token：
+
+[source,text]
+----
+__ROOTWARD_PACKAGE_NAME__
+__ROOTWARD_CLI_NAME__
+__ROOTWARD_CONFIG_DIR_NAME__
+----
+
+`template/package.json` 的 `name` 和 `bin` 必须使用 token。`template/src/core/constants.ts` 必须显式写入 package name、CLI name 和 config directory name token。模板源不得依赖 Rootward 仓库内部 workspace package，不得残留外部模板身份、外部 workspace package 或外部 tsconfig 依赖。
+
+依赖职责如下。
+
+* <<commander,Commander>> 承担命令表面：command、subcommand、option、help、version 和 usage error。
+* <<zod,Zod>> 承担运行时 schema 校验：配置文件、规范化配置、命令结果和错误对象边界。
+* <<smol-toml,smol-toml>> 承担 TOML 解析和序列化：`init` 生成默认配置，`config print` 投影规范化配置。
+* <<globby,globby>> 承担 include、exclude、hidden 和 symlink 相关 glob 展开。
+* <<node-ignore,ignore>> 承担项目根 `.gitignore` pattern matching。TypeScript 实现不得让宿主仓库的祖先 `.gitignore` 污染被生成项目的发现结果。
+* <<vitest,Vitest>> 承担契约测试。
+* <<tsdown,tsdown>> 承担 ESM 构建和类型声明输出。
+* <<biome,Biome>> 承担 TypeScript 项目的格式和检查。
+
+生成物源码结构固定为：
+
+[source,text]
+----
+src/
+  bin.ts
+  cli.ts
+  index.ts
+  commands/
+    init.ts
+    status.ts
+    discover.ts
+    scan.ts
+    config-print.ts
+    doctor.ts
+    shared.ts
+  core/
+    constants.ts
+    errors.ts
+    result.ts
+    project.ts
+    config.ts
+    discovery.ts
+    scanners.ts
+  io/
+    filesystem.ts
+    output.ts
+----
+
+`bin.ts` 是真实进程入口。它读取 `process.argv` 和 `process.cwd()`，调用可测试的 `runCli`，写 stdout/stderr，并设置 `process.exitCode`。
+
+`cli.ts` 组装 Commander program。它注册命令、选项、help、version 和 usage error handler。它不读取配置文件，不展开 glob，不运行 scanner。Commander 的默认错误输出不得直接写入 `--json` 失败 stderr。
+
+`commands/` 实现命令编排。每个 command action 调用 core 模块，并返回 `CommandResult`。命令层不拥有项目发现规则。
+
+`core/project.ts` 实现显式项目根和 CWD 向上发现。
+
+`core/config.ts` 实现 TOML 读写、Zod schema、规范化配置和配置错误映射。
+
+`core/discovery.ts` 实现 source 展开、路径规范化、gitignore-aware 扫描和 discovered result。
+
+`core/scanners.ts` 定义 scanner registry、内置 scanner 和 scanner 错误映射。
+
+`io/filesystem.ts` 定义文件系统 adapter。真实入口使用 Node fs；测试可以通过临时目录和 adapter 保持行为接近真实环境。
+
+`io/output.ts` 定义人类输出和 JSON 输出投影。核心模块不直接调用 `console.log`。
+
+TypeScript 模板不得把 Commander option object 直接当成核心配置。CLI option 需要先转换为 Rootward discovery overrides，再交给配置层合并。该规则防止 Commander 的命名、默认值和错误对象泄漏到 Rootward core。
+
+TypeScript 生成物必须满足以下附加约束。
+
+* `--json` 下的 unknown command 和 unknown option 失败输出只包含 JSON failure envelope。
+* 未归档运行时失败使用 `INTERNAL_ERROR`，不得伪装成 `SCAN_FAILED`。
+* `init` 目标不存在或不是目录时使用 `INIT_TARGET_INVALID`。
+* source root、include pattern 和 exclude pattern 中的反斜杠返回 `CONFIG_INVALID`。
+* symlink 发现测试必须覆盖不跟随 symlink、跟随 symlink 时排除 project root 外部目标、循环或遍历失败映射为 `DISCOVERY_FAILED`。
+* 生成物测试必须能在 Creator 实例化后的真实目标目录中运行。

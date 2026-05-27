@@ -27,6 +27,6 @@ scanner = "python"
 
 该配置用于初始化可运行项目语境。`docs` 和 `python` source 是模板默认输入，不是 Rootward 支持文件类型的上限。
 
-业务工具复制模板后可以替换默认 source。替换 source 不改变 source 模型。
+业务工具由 Creator 实例化模板后可以替换默认 source。替换 source 不改变 source 模型。
 
 字段语义见 xref:configuration-model[] 和 xref:source-declaration-model[]。文件发现执行语义见 xref:file-discovery-semantics[]。

@@ -4,6 +4,7 @@
 * [[[zod]]] Zod: https://zod.dev/
 * [[[smol-toml]]] smol-toml: https://www.npmjs.com/package/smol-toml
 * [[[globby]]] globby: https://www.npmjs.com/package/globby
+* [[[node-ignore]]] ignore: https://www.npmjs.com/package/ignore
 * [[[vitest]]] Vitest: https://vitest.dev/
 * [[[tsdown]]] tsdown: https://tsdown.dev/
 * [[[biome]]] Biome: https://biomejs.dev/

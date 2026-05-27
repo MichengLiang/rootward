@@ -1,7 +1,7 @@
 [#appendix-a-contract-checklist]
 == Rootward Contract 清单
 
-语言模板符合 Rootward 契约时，应满足以下清单。
+生成物符合 Rootward 语言模板契约时，应满足以下清单。
 
 * 提供稳定 CLI name。
 * 提供稳定 config directory name。
@@ -28,3 +28,22 @@
 * 测试覆盖 xref:test-contract[] 中的行为。
 
 该清单只判断 Rootward 基础契约。业务工具在该清单之外增加的 parser、命令、配置字段和诊断项，应由业务工具自己的契约和测试覆盖。
+
+Creator 符合 Rootward 创建器契约时，应满足以下清单。
+
+* npm package name 是 `create-rootward`。
+* bin name 是 `create-rootward`。
+* npm package 携带 Creator 构建产物和 Rootward 模板源。
+* 发布包内模板源与仓库级模板源一致。
+* 命令表面是 `create-rootward <template> <target-dir> --cli-name <name> [identity options] [--json]`。
+* Creator 不读取 TTY，不显示 prompt，不提供交互式选择。
+* template id 集合包含 `typescript`、`python`、`rust` 和 `go`。
+* `reserved` 模板返回 `TEMPLATE_NOT_IMPLEMENTED`。
+* 目标目录必须留在 Creator 当前工作目录内部。
+* 非空目标目录返回 `TARGET_NOT_EMPTY`。
+* 生成物身份通过 manifest identity slots 和 Rootward identity tokens 替换。
+* 生成物不得残留 `__ROOTWARD_` token。
+* Creator JSON success 使用 `{ "ok": true, "data": ... }`。
+* Creator JSON failure 使用 `{ "ok": false, "error": ... }`。
+* Creator 错误码和退出码稳定。
+* Creator 测试覆盖 xref:test-contract[] 中的创建器行为。

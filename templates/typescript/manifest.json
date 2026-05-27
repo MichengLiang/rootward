@@ -1,0 +1,38 @@
+{
+  "id": "typescript",
+  "language": "typescript",
+  "status": "implemented",
+  "templateRoot": "template",
+  "identity": {
+    "cliName": {
+      "required": true,
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "configDirName": {
+      "derivedFrom": "cliName",
+      "format": ".{cliName}"
+    },
+    "packageName": {
+      "required": true
+    }
+  },
+  "tokens": {
+    "__ROOTWARD_CLI_NAME__": "cliName",
+    "__ROOTWARD_CONFIG_DIR_NAME__": "configDirName",
+    "__ROOTWARD_PACKAGE_NAME__": "packageName"
+  },
+  "exclude": ["node_modules", "dist", "coverage", "temporary", ".turbo"],
+  "postcheck": [
+    "package.json",
+    "pnpm-workspace.yaml",
+    "README.md",
+    "src/bin.ts",
+    "src/cli.ts",
+    "src/core/constants.ts",
+    "src/index.test.ts",
+    "tsconfig.json",
+    "tsdown.config.ts",
+    "vitest.config.ts"
+  ],
+  "nextCommands": ["pnpm install", "pnpm test", "pnpm build"]
+}

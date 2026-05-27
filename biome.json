@@ -1,0 +1,31 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
+  "files": {
+    "includes": [
+      "biome.json",
+      "package.json",
+      "packages/**",
+      "pnpm-workspace.yaml",
+      "templates/**",
+      "tsconfig.base.json",
+      "!node_modules",
+      "!packages/*/dist",
+      "!packages/*/temporary",
+      "!templates/*/template/node_modules",
+      "!templates/*/template/dist",
+      "!templates/*/template/coverage",
+      "!templates/*/template/temporary"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
+  }
+}

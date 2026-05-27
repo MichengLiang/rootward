@@ -1,11 +1,20 @@
 [#rootward-artifact-boundary]
 == Rootward 的人工制品边界
 
-Rootward 是一套跨语言项目型 CLI 模板契约。该契约规定项目型 CLI 工具如何建立项目语境、发现项目根、读取项目内配置、声明源文件集合、投影发现结果、分发 scanner、输出稳定 JSON，并把错误映射为稳定错误码和退出码。
+Rootward 是一套跨语言项目型 CLI 模板体系。该体系规定项目型 CLI 工具如何建立项目语境、发现项目根、读取项目内配置、声明源文件集合、投影发现结果、分发 scanner、输出稳定 JSON，并规定 Rootward Creator CLI 如何把语言模板源实例化为具体项目。
 
-Rootward 的人工制品不是 TypeScript、Python、Rust 或 Go 中的任意一种实现。语言模板是实现物，Rootward 契约是这些实现物共同承载的对象。一个语言模板只有在保持 Rootward 公共契约时，才是 Rootward 模板。
+Rootward 的人工制品不是 TypeScript、Python、Rust 或 Go 中的任意一种实现。语言模板是实现物，Rootward 契约是这些实现物共同承载的对象。Rootward Creator CLI 是模板实例化工具，不是生成后的业务 CLI。一个语言模板只有在保持 Rootward 公共契约并能被 Creator 按 manifest 实例化时，才是 Rootward 语言模板。
 
-Rootward 的构成性条件如下。
+Rootward 体系由四个一等对象组成。
+
+* Rootward Contract：定义生成物必须满足的项目型 CLI 公共契约。
+* Rootward Repository：维护书、创建器、模板源、测试和发布配置的仓库。
+* Rootward Creator CLI：通过 npm 分发的非交互模板实例化命令。
+* Rootward Language Template：TypeScript、Python、Rust、Go 等语言的模板源。
+
+这些对象不能互相冒充。Contract 不是 README；Repository 不是生成物；Creator CLI 不是生成后的业务 CLI；Language Template 不是 npm 创建器本身。Creator 的错误码、输出和测试属于创建器契约；生成物的错误码、输出和测试属于生成物契约。
+
+Rootward 生成物的构成性条件如下。
 
 * 工具有稳定 CLI name。
 * 工具有稳定 config directory name。
@@ -23,6 +32,17 @@ Rootward 的构成性条件如下。
 
 这些条件共同定义 Rootward 项目型 CLI 模板。缺少项目根发现，模板无法建立项目语境。缺少项目内配置，工具行为不能随项目复制和审查。缺少 source 声明，文件集合不能成为公共契约。缺少 discover 投影，工具视野不能被验证。缺少稳定 JSON 和错误码，自动化调用方不能可靠消费结果。缺少可测试核心，契约行为不能被持续证明。
 
+Rootward 创建器的构成性条件如下。
+
+* Creator 通过 npm create package 分发。
+* Creator 提供非交互、可管道的命令表面。
+* Creator 读取语言模板 manifest。
+* Creator 只实例化 `implemented` 状态的模板。
+* Creator 使用显式 identity tokens 替换生成物身份。
+* Creator 默认拒绝写入非空目标目录。
+* Creator 提供稳定 JSON 输出、错误码和退出码。
+* Creator 通过实例化测试证明模板源可以生成可运行项目。
+
 构成性条件不是功能清单。功能清单可以随业务工具变化，构成性条件决定一个语言模板是否仍然是 Rootward 模板。业务工具可以替换 scanner、默认 source 和业务命令；替换以后仍必须保留项目语境、配置、发现、投影、错误和测试这些 Rootward 条件。
 
 Rootward 不承担以下对象。
@@ -34,7 +54,11 @@ Rootward 不承担以下对象。
 * Rootward 不是全局配置系统。
 * Rootward 不是远程配置服务。
 * Rootward 不是图形界面或语言服务器。
+* Rootward 不是 GitHub template repo 的替代入口。
+* Rootward 不是语言包管理器。
+* Rootward 不是项目迁移器。
+* Rootward Creator 不是生成物运行时依赖。
 
 这些对象可以由具体业务工具实现，也可以作为未来期权研究，但它们不进入 Rootward 核心契约。Rootward 的边界使语言模板保持同构，使业务工具能够在清楚的项目语境上继续构造自己的能力。
 
-Rootward 的对象边界在本书中逐层展开。项目语境契约见 xref:tool-identity-and-project-directory[] 至 xref:configuration-model[]；发现与扫描契约见 xref:source-declaration-model[] 至 xref:doctor-diagnostics[]；命令、输出与错误契约见 xref:command-set[] 至 xref:error-codes-and-exit-codes[]；跨语言实现约束见 xref:cross-language-isomorphism[]；边界演进规则见 xref:design-point-admission[] 和 xref:neighbor-objects-and-future-options[]。
+Rootward 的对象边界在本书中逐层展开。项目语境契约见 xref:tool-identity-and-project-directory[] 至 xref:configuration-model[]；发现与扫描契约见 xref:source-declaration-model[] 至 xref:doctor-diagnostics[]；命令、输出与错误契约见 xref:command-set[] 至 xref:error-codes-and-exit-codes[]；Creator 与模板分发契约见 xref:creator-cli-contract[] 至 xref:creator-errors-and-exit-codes[]；跨语言实现约束见 xref:cross-language-isomorphism[]；边界演进规则见 xref:design-point-admission[] 和 xref:neighbor-objects-and-future-options[]。

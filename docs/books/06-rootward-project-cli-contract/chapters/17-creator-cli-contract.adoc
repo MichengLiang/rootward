@@ -1,0 +1,69 @@
+[#creator-cli-contract]
+== Rootward Creator CLI 契约
+
+Rootward Creator CLI 是 Rootward 的默认模板实例化入口。它通过 npm create package 分发，把 Rootward language template 实例化到调用方指定的目标目录。Creator CLI 不参与生成物运行时，不读取生成物项目配置，不执行生成物 `init`，不替用户运行依赖安装、测试或 git 初始化。
+
+Creator package name 固定为 `create-rootward`。Creator bin name 固定为 `create-rootward`。`npm create rootward`、`pnpm create rootward`、`npx create-rootward` 和 `pnpm dlx create-rootward` 都指向同一个 Creator 命令面。
+
+Creator npm package 必须包含 Creator 构建产物和 Rootward 模板源。模板源不作为独立 npm 包发布；Creator 版本就是模板集合版本。
+
+命令表面固定为：
+
+[source,text]
+----
+create-rootward <template> <target-dir> --cli-name <name> [identity options] [--json]
+----
+
+`<template>` 是模板 id。Rootward v0.1 的模板 id 集合固定为 `typescript`、`python`、`rust` 和 `go`。`typescript` 是可实例化模板。`python`、`rust` 和 `go` 在仓库中以 `reserved` 状态存在；Creator 请求 reserved 模板时返回 `TEMPLATE_NOT_IMPLEMENTED`。
+
+`<target-dir>` 是生成物目录。该路径相对 Creator 当前工作目录解析，并且必须留在当前工作目录内部。Creator 只允许写入不存在目录或空目录。目标路径存在且非空时返回 `TARGET_NOT_EMPTY`。目标路径不可创建、不是目录、越出当前工作目录或路径语义不合法时返回 `TARGET_INVALID`。Creator 不提供 merge、overwrite、force 或迁移语义。
+
+`--cli-name <name>` 是生成物 CLI name。该身份对所有语言模板必需。生成物 config directory name 由 Creator 按 `.${cliName}` 派生，并作为显式值写入生成物。生成物运行时不得从 package name、crate name、module path 或 distribution name 推导 config directory name。
+
+TypeScript 模板额外要求 `--package-name <name>`。Python 模板的身份槽位是 `--project-name <name>` 和 `--module-name <name>`。Rust 模板的身份槽位是 `--crate-name <name>` 和 `--bin-name <name>`。Go 模板的身份槽位是 `--module-path <path>`。未实现模板的身份槽位仍由 manifest 声明；Creator 在 reserved 状态下不生成这些模板。
+
+`--json` 只改变 Creator 输出投影，不改变生成行为。Creator 不提供交互式选择，不读取 TTY 输入，不显示 prompt，不要求终端能力。Creator 的所有行为必须能通过 argv、stdout、stderr 和 exit code 稳定测试。
+
+Creator 成功的人类输出必须包含 template id、target dir、关键身份和 next commands。Creator 成功 JSON 固定为：
+
+[source,json]
+----
+{
+  "ok": true,
+  "data": {
+    "template": "typescript",
+    "targetDir": "/repo/my-tool",
+    "identity": {
+      "cliName": "my-tool",
+      "configDirName": ".my-tool",
+      "packageName": "my-tool"
+    },
+    "filesWritten": 42,
+    "nextCommands": [
+      "cd /repo/my-tool",
+      "pnpm install",
+      "pnpm test"
+    ]
+  }
+}
+----
+
+Creator 失败 JSON 固定为：
+
+[source,json]
+----
+{
+  "ok": false,
+  "error": {
+    "code": "TARGET_NOT_EMPTY",
+    "message": "Target directory is not empty.",
+    "details": {
+      "targetDir": "/repo/my-tool"
+    }
+  }
+}
+----
+
+成功 JSON 写 stdout。失败 JSON 写 stderr。`--json` 失败输出不得混入命令解析库、人类 usage 文本、stack trace 或非 JSON 诊断行。
+
+Creator 的 next commands 是生成后建议，不是 Creator 自动执行的动作。Creator 完成目标目录写入和 postcheck 后返回。依赖安装、测试、构建和 git 初始化属于生成物消费者后续动作。

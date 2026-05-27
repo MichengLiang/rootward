@@ -1,0 +1,103 @@
+[#creator-errors-and-exit-codes]
+== Creator 错误码与退出码
+
+Creator 错误对象固定为：
+
+[source,ts]
+----
+type CreatorError = {
+  code: CreatorErrorCode;
+  message: string;
+  details?: Record<string, unknown>;
+};
+----
+
+Creator 错误码属于模板实例化契约。生成物 CLI 错误码属于项目型 CLI 运行契约。两者服务不同消费者动作，不能共用错误码表。
+
+Creator 退出码固定为：
+
+[cols="1,2,4",options="header"]
+|===
+| 退出码 | 名称 | 含义
+
+| `0`
+| success
+| 模板实例化成功。
+
+| `1`
+| internal failure
+| 未归档运行时失败。
+
+| `2`
+| usage error
+| 命令行参数错误、未知 option、缺少 option 值或身份参数无效。
+
+| `3`
+| target error
+| 目标目录不可写入、非空或路径语义不合法。
+
+| `4`
+| template error
+| template id、manifest 或模板状态不满足契约。
+
+| `5`
+| write or rewrite error
+| 模板复制或身份替换失败。
+
+| `6`
+| postcheck error
+| 生成后结构检查或 token residue 检查失败。
+|===
+
+Creator 错误码固定为：
+
+[cols="1,1,4",options="header"]
+|===
+| 错误码 | 退出码 | 触发条件
+
+| `USAGE_ERROR`
+| `2`
+| 参数错误、未知 option、缺少 option 值或身份参数无效。
+
+| `TEMPLATE_NOT_FOUND`
+| `4`
+| template id 不存在。
+
+| `TEMPLATE_NOT_IMPLEMENTED`
+| `4`
+| template id 存在但 manifest status 为 `reserved`。
+
+| `TEMPLATE_INVALID`
+| `4`
+| manifest 或模板源结构不符合 Creator 契约。
+
+| `TARGET_NOT_EMPTY`
+| `3`
+| 目标目录存在且非空。
+
+| `TARGET_INVALID`
+| `3`
+| 目标路径不可创建、越出当前工作目录、不是目录或路径语义不合法。
+
+| `COPY_FAILED`
+| `5`
+| 模板源复制失败。
+
+| `REWRITE_FAILED`
+| `5`
+| 身份占位符替换失败。
+
+| `TOKEN_RESIDUE_FOUND`
+| `6`
+| 生成物仍残留 Rootward identity token。
+
+| `POSTCHECK_FAILED`
+| `6`
+| 生成后结构检查失败。
+
+| `INTERNAL_ERROR`
+| `1`
+| 未归档运行时失败。
+|===
+
+Creator 实现必须把命令解析库错误、文件系统错误、manifest 校验错误和 token 替换错误映射到这些稳定错误码。Creator `--json` 失败输出只包含 Creator JSON failure envelope，不暴露 stack trace，不混入命令解析库默认错误文本。
