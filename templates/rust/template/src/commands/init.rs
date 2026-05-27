@@ -43,7 +43,13 @@ pub fn init_command(cwd: &Utf8Path, path: Option<&Path>, force: bool) -> CliResu
 
     let config_dir = target.join(CONFIG_DIR_NAME);
     let config_path = config_dir.join(CONFIG_FILE_NAME);
-    if config_path.exists() && !force {
+    let config_existed = config_path.exists();
+    let cache_dir = config_dir.join("cache");
+    let state_dir = config_dir.join("state");
+    let cache_existed = cache_dir.exists();
+    let state_existed = state_dir.exists();
+
+    if config_existed && !force {
         return Err(fail(
             CliErrorCode::ProjectAlreadyInitialized,
             "Project is already initialized.",
@@ -52,7 +58,7 @@ pub fn init_command(cwd: &Utf8Path, path: Option<&Path>, force: bool) -> CliResu
     }
 
     let mut created = Vec::new();
-    if !config_dir.exists() {
+    if !config_existed {
         created.push("config".to_string());
     }
     fs::create_dir_all(&config_dir).map_err(|error| {
@@ -62,25 +68,53 @@ pub fn init_command(cwd: &Utf8Path, path: Option<&Path>, force: bool) -> CliResu
             Some(json!({ "configDir": config_dir, "reason": error.to_string() })),
         )
     })?;
-    let cache_dir = config_dir.join("cache");
-    let state_dir = config_dir.join("state");
-    if !cache_dir.exists() {
+    if !cache_existed {
         created.push("cache".to_string());
     }
-    if !state_dir.exists() {
+    if !state_existed {
         created.push("state".to_string());
     }
-    fs::create_dir_all(&cache_dir).unwrap();
-    fs::create_dir_all(&state_dir).unwrap();
-    fs::write(&config_path, DEFAULT_CONFIG_TOML).unwrap();
-    fs::write(cache_dir.join(".gitignore"), RUNTIME_GITIGNORE).unwrap();
-    fs::write(state_dir.join(".gitignore"), RUNTIME_GITIGNORE).unwrap();
+    fs::create_dir_all(&cache_dir).map_err(|error| {
+        fail(
+            CliErrorCode::InitTargetInvalid,
+            "Cache directory could not be created.",
+            Some(json!({ "cacheDir": cache_dir, "reason": error.to_string() })),
+        )
+    })?;
+    fs::create_dir_all(&state_dir).map_err(|error| {
+        fail(
+            CliErrorCode::InitTargetInvalid,
+            "State directory could not be created.",
+            Some(json!({ "stateDir": state_dir, "reason": error.to_string() })),
+        )
+    })?;
+    fs::write(&config_path, DEFAULT_CONFIG_TOML).map_err(|error| {
+        fail(
+            CliErrorCode::InternalError,
+            "Config file could not be written.",
+            Some(json!({ "configPath": config_path, "reason": error.to_string() })),
+        )
+    })?;
+    fs::write(cache_dir.join(".gitignore"), RUNTIME_GITIGNORE).map_err(|error| {
+        fail(
+            CliErrorCode::InternalError,
+            "Cache .gitignore could not be written.",
+            Some(json!({ "cacheDir": cache_dir, "reason": error.to_string() })),
+        )
+    })?;
+    fs::write(state_dir.join(".gitignore"), RUNTIME_GITIGNORE).map_err(|error| {
+        fail(
+            CliErrorCode::InternalError,
+            "State .gitignore could not be written.",
+            Some(json!({ "stateDir": state_dir, "reason": error.to_string() })),
+        )
+    })?;
 
     Ok(InitData {
         project_root: target.to_string(),
         config_dir: config_dir.to_string(),
         config_path: config_path.to_string(),
         created,
-        overwritten: force,
+        overwritten: force && config_existed,
     })
 }

@@ -354,6 +354,134 @@ describe("create-rootward", () => {
     });
   });
 
+  it("rejects manifests with prefix-overlapping identity tokens", async () => {
+    const parent = await makeParentDir();
+    const templates = join(parent, "templates");
+    const template = join(templates, "bad", "template");
+    await mkdir(template, { recursive: true });
+    await writeFile(join(template, "README.md"), "bad\n");
+    await writeFile(
+      join(templates, "bad", "manifest.json"),
+      JSON.stringify(
+        {
+          id: "bad",
+          language: "bad",
+          status: "implemented",
+          templateRoot: "template",
+          identity: {
+            cliName: { required: true, pattern: "^[a-z][a-z0-9-]*$" },
+          },
+          tokens: {
+            "rootward-token": "cliName",
+            "rootward-token-cli-name": "cliName",
+          },
+          exclude: [],
+          postcheck: ["README.md"],
+          nextCommands: [],
+        },
+        null,
+        2,
+      ),
+    );
+
+    const result = await runCreator(
+      ["bad", "target", "--cli-name", "bad-tool", "--json"],
+      { cwd: parent, templatesRoot: templates },
+    );
+
+    expect(result.exitCode).toBe(4);
+    expect(result.stdout).toBe("");
+    expect(parseJson(result.stderr)).toMatchObject({
+      ok: false,
+      error: { code: "TEMPLATE_INVALID" },
+    });
+  });
+
+  it("rejects manifests whose tokens reference unknown identity slots", async () => {
+    const parent = await makeParentDir();
+    const templates = join(parent, "templates");
+    const template = join(templates, "bad", "template");
+    await mkdir(template, { recursive: true });
+    await writeFile(join(template, "README.md"), "rootward-token-cli-name\n");
+    await writeFile(
+      join(templates, "bad", "manifest.json"),
+      JSON.stringify(
+        {
+          id: "bad",
+          language: "bad",
+          status: "implemented",
+          templateRoot: "template",
+          identity: {
+            cliName: { required: true, pattern: "^[a-z][a-z0-9-]*$" },
+          },
+          tokens: {
+            "rootward-token-cli-name": "missingIdentity",
+          },
+          exclude: [],
+          postcheck: ["README.md"],
+          nextCommands: [],
+        },
+        null,
+        2,
+      ),
+    );
+
+    const result = await runCreator(
+      ["bad", "target", "--cli-name", "bad-tool", "--json"],
+      { cwd: parent, templatesRoot: templates },
+    );
+
+    expect(result.exitCode).toBe(4);
+    expect(result.stdout).toBe("");
+    expect(parseJson(result.stderr)).toMatchObject({
+      ok: false,
+      error: { code: "TEMPLATE_INVALID" },
+    });
+  });
+
+  it("rejects manifests whose derived identity sources are not declared", async () => {
+    const parent = await makeParentDir();
+    const templates = join(parent, "templates");
+    const template = join(templates, "bad", "template");
+    await mkdir(template, { recursive: true });
+    await writeFile(join(template, "README.md"), "rootward-token-cli-name\n");
+    await writeFile(
+      join(templates, "bad", "manifest.json"),
+      JSON.stringify(
+        {
+          id: "bad",
+          language: "bad",
+          status: "implemented",
+          templateRoot: "template",
+          identity: {
+            cliName: { required: true, pattern: "^[a-z][a-z0-9-]*$" },
+            configDirName: { derivedFrom: "missingIdentity" },
+          },
+          tokens: {
+            "rootward-token-cli-name": "cliName",
+          },
+          exclude: [],
+          postcheck: ["README.md"],
+          nextCommands: [],
+        },
+        null,
+        2,
+      ),
+    );
+
+    const result = await runCreator(
+      ["bad", "target", "--cli-name", "bad-tool", "--json"],
+      { cwd: parent, templatesRoot: templates },
+    );
+
+    expect(result.exitCode).toBe(4);
+    expect(result.stdout).toBe("");
+    expect(parseJson(result.stderr)).toMatchObject({
+      ok: false,
+      error: { code: "TEMPLATE_INVALID" },
+    });
+  });
+
   it("maps usage errors to stable JSON without parser text", async () => {
     const parent = await makeParentDir();
 

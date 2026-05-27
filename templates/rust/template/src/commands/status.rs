@@ -45,11 +45,7 @@ pub fn status_command(cwd: &Utf8Path, project: Option<&Path>) -> CliResult<Statu
     Ok(StatusData {
         project_root: context.project_root.to_string(),
         config_path: context.config_path.to_string(),
-        discovery_mode: serde_json::to_value(context.discovery_mode)
-            .unwrap()
-            .as_str()
-            .unwrap()
-            .to_string(),
+        discovery_mode: context.discovery_mode.as_str().to_string(),
         source_count: sources.len(),
         sources,
     })

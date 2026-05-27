@@ -15,6 +15,15 @@ pub enum DiscoveryMode {
     CwdUpward,
 }
 
+impl DiscoveryMode {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Explicit => "explicit",
+            Self::CwdUpward => "cwd-upward",
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct ProjectContext {
     pub project_root: Utf8PathBuf,

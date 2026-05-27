@@ -167,6 +167,12 @@ fn init_rejects_repeated_or_invalid_targets_and_force_overwrites() {
 
     let repeated = run_cli(["init", "--json"], project.path());
     let forced = run_cli(["init", "--force"], project.path());
+    let fresh_force_project = TempProject::new();
+    let fresh_force = run_cli(["init", "--force", "--json"], fresh_force_project.path());
+    let existing_runtime_dirs = TempProject::new();
+    existing_runtime_dirs.mkdir(&format!("{CONFIG_DIR_NAME}/cache"));
+    existing_runtime_dirs.mkdir(&format!("{CONFIG_DIR_NAME}/state"));
+    let existing_runtime_dirs_init = run_cli(["init", "--json"], existing_runtime_dirs.path());
     let missing = run_cli(["init", "missing", "--json"], project.path());
     let file_target_arg = file_target.to_string_lossy().to_string();
     let not_directory = run_cli(["init", &file_target_arg, "--json"], project.path());
@@ -180,6 +186,12 @@ fn init_rejects_repeated_or_invalid_targets_and_force_overwrites() {
     assert_eq!(
         fs::read_to_string(project.path().join(CONFIG_DIR_NAME).join("config.toml")).unwrap(),
         DEFAULT_CONFIG_TOML
+    );
+    assert_eq!(fresh_force.status.code(), Some(0));
+    assert_eq!(json_stdout(&fresh_force)["data"]["overwritten"], false);
+    assert_eq!(
+        json_stdout(&existing_runtime_dirs_init)["data"]["created"],
+        serde_json::json!(["config"])
     );
     assert_eq!(missing.status.code(), Some(3));
     assert_eq!(
@@ -377,6 +389,29 @@ fn applies_gitignore_hidden_and_symlink_discovery_rules() {
     assert!(!no_follow.stdout.contains("docs/linked.md"));
     assert!(!no_follow.stdout.contains("docs/external.md"));
     assert!(!follow.stdout.contains("external.md"));
+}
+
+#[test]
+fn ignores_ancestor_gitignore_outside_project_root() {
+    let ancestor = TempProject::new();
+    ancestor.write(".gitignore", "nested/docs/ancestor-ignored.md\n");
+    let project_root = ancestor.path().join("nested");
+    ancestor.write(
+        &format!("nested/{CONFIG_DIR_NAME}/config.toml"),
+        DEFAULT_CONFIG_TOML,
+    );
+    ancestor.write("nested/docs/ancestor-ignored.md", "must stay visible\n");
+    ancestor.write("nested/docs/project-ignored.md", "project ignored\n");
+    ancestor.write("nested/.gitignore", "docs/project-ignored.md\n");
+
+    let output = run_cli(
+        ["discover", "--source", "docs", "--list", "--json"],
+        &project_root,
+    );
+
+    assert_eq!(output.status.code(), Some(0));
+    assert!(output.stdout.contains("docs/ancestor-ignored.md"));
+    assert!(!output.stdout.contains("docs/project-ignored.md"));
 }
 
 #[test]

@@ -76,5 +76,51 @@ export async function loadManifest(
       },
     );
   }
+  const identityKeys = new Set(Object.keys(parsed.data.identity));
+  for (const [identityKey, slot] of Object.entries(parsed.data.identity)) {
+    if (slot.derivedFrom && !identityKeys.has(slot.derivedFrom)) {
+      throw createError(
+        "TEMPLATE_INVALID",
+        "Template manifest derived identity source is not declared.",
+        {
+          template: templateId,
+          manifestPath,
+          identityKey,
+          derivedFrom: slot.derivedFrom,
+        },
+      );
+    }
+  }
+  const tokens = Object.keys(parsed.data.tokens);
+  for (const [token, identityKey] of Object.entries(parsed.data.tokens)) {
+    if (!identityKeys.has(identityKey)) {
+      throw createError(
+        "TEMPLATE_INVALID",
+        "Template manifest token identity is not declared.",
+        {
+          template: templateId,
+          manifestPath,
+          token,
+          identityKey,
+        },
+      );
+    }
+  }
+  for (const token of tokens) {
+    for (const candidate of tokens) {
+      if (token !== candidate && candidate.startsWith(token)) {
+        throw createError(
+          "TEMPLATE_INVALID",
+          "Template manifest tokens must not overlap by prefix.",
+          {
+            template: templateId,
+            manifestPath,
+            token,
+            overlappingToken: candidate,
+          },
+        );
+      }
+    }
+  }
   return parsed.data;
 }
