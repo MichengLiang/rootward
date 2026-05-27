@@ -31,6 +31,12 @@ pnpm install
 pnpm run test
 ```
 
+生成单文件 ADOC：
+
+```bash
+pnpm run build:adoc
+```
+
 构建 HTML：
 
 ```bash
@@ -40,6 +46,7 @@ pnpm run build
 输出入口：
 
 ```text
+build/adoc/catalog.adoc
 build/html/index.html
 ```
 
@@ -52,6 +59,7 @@ build/html/catalog.html
 契约书输出：
 
 ```text
+build/adoc/books/06-rootward-project-cli-contract.adoc
 build/html/books/06-rootward-project-cli-contract/book.html
 ```
 
