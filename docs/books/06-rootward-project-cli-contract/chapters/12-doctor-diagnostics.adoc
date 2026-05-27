@@ -30,12 +30,41 @@ type Diagnostic = {
 
 `sourceId` 在诊断项与特定 source 相关时出现。
 
-Rootward doctor 至少报告以下对象。
+`doctor` 的 JSON data 固定为：
 
-* 配置已解析并通过校验。
-* source root 不存在或不是目录。
-* source 使用未注册 scanner。
-* source 匹配为空。
+[source,ts]
+----
+type DoctorData = {
+  projectRoot: string;
+  configPath: string;
+  diagnostics: Diagnostic[];
+};
+----
+
+doctor 成功时，`DoctorData` 进入 JSON success envelope 的 `data`。doctor 失败时，同一 diagnostics 数组进入 JSON failure envelope 的 `error.details.diagnostics`。该规则使调用方在成功和失败路径中使用同一诊断项结构。
+
+Rootward doctor 至少报告以下诊断 code。
+
+[cols="1,1,4",options="header"]
+|===
+| 诊断 code | level | 触发条件
+
+| `CONFIG_OK`
+| `info`
+| 配置已解析并通过校验。
+
+| `SOURCE_ROOT_NOT_FOUND`
+| `error`
+| source root 不存在或不是目录。
+
+| `SCANNER_NOT_REGISTERED`
+| `error`
+| source 使用未注册 scanner。
+
+| `SOURCE_EMPTY`
+| `warning`
+| source 匹配为空。
+|===
 
 doctor 和 discover 对同一问题的处理不同。`discover` 负责产生发现结果，source root 不存在时无法继续，因此返回 `SOURCE_ROOT_NOT_FOUND`。doctor 负责收集项目健康状态，source root 不存在时生成 error 诊断项，并在最终结果中保留完整 diagnostics。
 

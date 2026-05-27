@@ -46,7 +46,7 @@ manifest 顶层字段固定为：
 
 `id` 是 Creator 命令中的 template id。`language` 是语言分类。`status` 只能是 `implemented` 或 `reserved`。`implemented` 表示 Creator 可以实例化该模板。`reserved` 表示仓库保留该语言模板目录，但 Creator 不承诺生成该语言项目。
 
-Rootward v0.1 中，TypeScript 模板 status 为 `implemented`，Python、Rust 和 Go 模板 status 为 `reserved`。reserved 目录必须包含 manifest 和 template root；Creator 请求 reserved 模板时返回 `TEMPLATE_NOT_IMPLEMENTED`，不得生成空项目或半成品项目。
+本书定义的模板状态为：TypeScript 模板 status 是 `implemented`，Python、Rust 和 Go 模板 status 是 `reserved`。reserved 目录必须包含 manifest 和 template root；Creator 请求 reserved 模板时返回 `TEMPLATE_NOT_IMPLEMENTED`，不得生成空项目或半成品项目。
 
 `identity` 定义模板需要的身份槽位。TypeScript manifest 的身份槽位固定为：
 

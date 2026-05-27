@@ -52,13 +52,13 @@ JSON 失败输出固定为：
 
 人类错误输出不暴露内部 stack trace。普通错误输出包含错误 code、message 和必要 details。内部调试信息不进入 Rootward 默认公共输出。
 
-`status` 人类输出应投影 project root、config path、discovery mode 和 sources 状态。
+`status` 人类输出应投影 project root、config path、discovery mode 和 sources 状态。status JSON data 见 xref:status-projection[]。
 
 `discover` 人类输出应投影 project root、config path、source、scanner、root 和 file count。`--list` 模式下应列出 project-root-relative POSIX path。
 
 `config print` 人类输出使用 TOML。JSON 模式输出规范化配置对象。
 
-`scan` 人类输出应投影每个 source 的 scanner、files、bytes、lines 和总计。
+`scan` 人类输出应投影每个 source 的 scanner、files、bytes、lines 和总计。scan JSON data 见 xref:scan-projection[]。
 
 `doctor` 人类输出应投影整体状态和诊断项。诊断项至少包含 level、code、source id 和 message。
 

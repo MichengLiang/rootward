@@ -42,6 +42,19 @@ foo init [path] [--force]
 
 默认配置是初始化契约的一部分。默认配置内容见 xref:appendix-b-default-config[]。默认配置用于建立可运行项目语境，不代表业务工具支持文件类型的上限。
 
-`init` 成功的公共投影应包含 project root 和 config path。JSON 模式下，该信息进入成功 envelope 的 `data`；人类模式下，该信息进入终端摘要。
+`init` 成功的 JSON data 固定为：
+
+[source,ts]
+----
+type InitData = {
+  projectRoot: string;
+  configDir: string;
+  configPath: string;
+  created: Array<"config" | "cache" | "state">;
+  overwritten: boolean;
+};
+----
+
+`projectRoot` 是初始化目标目录的绝对路径。`configDir` 是创建或确认存在的工具隐藏目录。`configPath` 是创建或覆盖的 TOML 配置文件路径。`created` 只记录本次初始化新建的公共结构单位；`overwritten` 表示本次执行是否覆盖已有 config。人类模式下，该信息进入终端摘要。
 
 `init` 的错误语义必须保持项目语境边界清楚。目标目录不存在或目标路径不是目录时返回 `INIT_TARGET_INVALID`。配置已存在且未传 `--force` 时返回 `PROJECT_ALREADY_INITIALIZED`。文件系统写入失败属于 `INTERNAL_ERROR` 或具体语言实现归档后的稳定错误映射。语言模板不得在初始化失败时留下半个公共契约，例如只创建 cache/state 而缺少 config 的成功返回。

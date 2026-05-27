@@ -10,6 +10,7 @@ Rootward 测试证明公共契约成立。测试分为生成物契约测试和 C
 * `init` 在目标目录创建 `.foo/config.toml`。
 * `init` 创建 `.foo/cache/.gitignore`。
 * `init` 创建 `.foo/state/.gitignore`。
+* `init --json` 输出 project root、config dir、config path、created 和 overwritten。
 * `init` 目标不存在或不是目录时返回 `INIT_TARGET_INVALID`。
 * 已初始化目录再次 `init` 返回 `PROJECT_ALREADY_INITIALIZED`。
 * `init --force` 覆盖配置文件，并保留 cache/state gitignore 结构。
@@ -18,6 +19,8 @@ Rootward 测试证明公共契约成立。测试分为生成物契约测试和 C
 
 * 从项目根运行 `status` 找到配置。
 * 从子目录运行 `status` 向上找到配置。
+* `status --json` 输出 project root、config path、discovery mode、source count 和 source root status。
+* source root 缺失时 `status` 成功，并把该 source 的 root status 投影为 `missing`。
 * `--project` 指定项目根时只读取该根配置。
 * `--project` 指定错误目录时返回 `PROJECT_CONFIG_NOT_FOUND`。
 * 未初始化目录运行项目命令返回 `PROJECT_NOT_FOUND`。
@@ -37,6 +40,7 @@ Rootward 测试证明公共契约成立。测试分为生成物契约测试和 C
 * `discover` 按 include 展开文件。
 * `discover` 按 exclude 排除文件。
 * `discover --source <id>` 只展开指定 source。
+* `discover --json` 输出 project root、config path、sources 和 total files。
 * `respect_gitignore = true` 时排除 `.gitignore` 声明路径。
 * `--no-respect-gitignore` 覆盖配置。
 * `include_hidden = false` 时不扫描隐藏路径。
@@ -51,6 +55,7 @@ scanner 测试：
 * `scan` 按 source scanner 分发。
 * 未注册 scanner 返回 `SCANNER_NOT_REGISTERED`。
 * 内置 scanner 返回文件数、字节数和行数。
+* `scan --json` 输出每个 source 的 scanner result 和 totals。
 
 输出测试：
 
@@ -67,6 +72,8 @@ doctor 测试：
 * source root 缺失时包含 error 诊断，并返回阻断错误。
 * source 使用未注册 scanner 时包含 error 诊断，并返回阻断错误。
 * 空 source 产生 warning，但 doctor 命令成功。
+* `doctor --json` 成功时 diagnostics 位于 `data.diagnostics`。
+* `doctor --json` 失败时 diagnostics 位于 `error.details.diagnostics`。
 
 usage error 测试：
 
@@ -78,7 +85,7 @@ Creator 契约测试必须覆盖以下行为。
 
 * `create-rootward typescript <dir> --cli-name <name> --package-name <name>` 创建目标目录。
 * 非空目标目录返回 `TARGET_NOT_EMPTY`。
-* 越出当前工作目录的目标路径返回 `TARGET_INVALID`。
+* 目标路径是已存在文件或不能形成稳定目标目录边界时返回 `TARGET_INVALID`。
 * 未知 template 返回 `TEMPLATE_NOT_FOUND`。
 * reserved template 返回 `TEMPLATE_NOT_IMPLEMENTED`。
 * 缺少 `--cli-name` 返回 `USAGE_ERROR`。

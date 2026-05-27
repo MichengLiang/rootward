@@ -20,6 +20,8 @@
 * scanner registry 按 source scanner key 分发。
 * scanner 不重新解释项目发现和配置。
 * 提供 `status`、`discover`、`scan`、`config print` 和 `doctor`。
+* `status` 投影项目语境摘要和 source root status。
+* `scan` 投影 scanner results 和 totals。
 * JSON success 使用 `{ "ok": true, "data": ... }`。
 * JSON failure 使用 `{ "ok": false, "error": ... }`。
 * 错误 code 稳定。
@@ -39,7 +41,7 @@ Creator 符合 Rootward 创建器契约时，应满足以下清单。
 * Creator 不读取 TTY，不显示 prompt，不提供交互式选择。
 * template id 集合包含 `typescript`、`python`、`rust` 和 `go`。
 * `reserved` 模板返回 `TEMPLATE_NOT_IMPLEMENTED`。
-* 目标目录必须留在 Creator 当前工作目录内部。
+* 目标目录是 Creator 的写入边界。
 * 非空目标目录返回 `TARGET_NOT_EMPTY`。
 * 生成物身份通过 manifest identity slots 和 Rootward identity tokens 替换。
 * 生成物不得残留 `__ROOTWARD_` token。
