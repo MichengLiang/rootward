@@ -38,7 +38,7 @@ Rootward 创建器的构成性条件如下。
 * Creator 提供非交互、可管道的命令表面。
 * Creator 读取语言模板 manifest。
 * Creator 只实例化 `implemented` 状态的模板。
-* Creator 使用显式 identity tokens 替换生成物身份。
+* Creator 使用 manifest 显式声明的 identity token 替换生成物身份。
 * Creator 默认拒绝写入非空目标目录。
 * Creator 提供稳定 JSON 输出、错误码和退出码。
 * Creator 通过实例化测试证明模板源可以生成可运行项目。

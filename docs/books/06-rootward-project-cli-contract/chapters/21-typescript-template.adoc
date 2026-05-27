@@ -12,7 +12,7 @@ templates/typescript/
   template/
 ----
 
-`templates/typescript/manifest.json` 的 status 必须是 `implemented`。`template/` 中的生成物源必须使用 Rootward identity tokens。Creator 生成后必须替换 package name、bin key、constants、README 和测试断言。
+`templates/typescript/manifest.json` 的 status 必须是 `implemented`。`template/` 中的生成物源必须使用 manifest 声明的 identity tokens。Creator 生成后必须替换 package name、bin key、constants、README 和测试断言。
 
 TypeScript 模板源固定使用以下 token：
 

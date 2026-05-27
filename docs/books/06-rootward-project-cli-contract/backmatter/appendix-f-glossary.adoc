@@ -21,7 +21,7 @@
 | 描述 language template 身份、状态、template root、identity slots、tokens、exclude、postcheck 和 next commands 的 JSON 文件。
 
 | identity token
-| 模板源中由 Creator 替换的显式占位符，例如 `__ROOTWARD_CLI_NAME__`。生成物不得残留 identity token。
+| 模板源中由 Creator 替换的 manifest 显式声明占位符，例如 TypeScript 的 `__ROOTWARD_CLI_NAME__` 或 Rust 的 `rootward-token-cli-name`。生成物不得残留 manifest `tokens` 中声明的 identity token。
 
 | 项目型 CLI
 | 在文件系统项目中运行，并以项目根、项目配置和项目目录树为输入语境的命令行人工制品。

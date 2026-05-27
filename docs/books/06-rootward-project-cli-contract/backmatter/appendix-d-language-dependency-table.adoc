@@ -88,7 +88,11 @@ Rootward 生成物层依赖如下。
 
 | Rust
 | ignore
-| gitignore-aware 文件发现。
+| 递归遍历、hidden 过滤、symlink 遍历控制和 project root 内部 gitignore-aware 文件发现。
+
+| Rust
+| globset
+| source include 和 exclude pattern matching。
 
 | Rust
 | thiserror

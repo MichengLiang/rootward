@@ -20,7 +20,7 @@ templates/
 
 `packages/create-rootward/templates/` 不属于 Rootward repository 的 source layout。Rootward 不通过 package-local template source 维护发布资产。若实现需要在 package 构建期间准备模板文件，该文件集合必须位于 ignored build output 或 pack staging 内，并且必须能由 `templates/` 重新生成。
 
-Creator package artifact 必须包含从仓库模板源生成的 packaged template asset。该资产位于 Creator runtime 可读的构建输出或 npm tarball 路径中，例如 `dist/templates/`。packaged template asset 不具有源码身份；它可以被删除，并由构建流程从 `templates/` 重新生成。Creator runtime 在仓库开发态读取仓库模板源，在发布态读取 packaged template asset。两种读取位置必须投影同一 manifest、template root、reserved 状态和 identity token 集合。
+Creator package artifact 必须包含从仓库模板源生成的 packaged template asset。该资产位于 Creator runtime 可读的构建输出或 npm tarball 路径中，例如 `dist/templates/`。packaged template asset 不具有源码身份；它可以被删除，并由构建流程从 `templates/` 重新生成。Creator runtime 在仓库开发态读取仓库模板源，在发布态读取 packaged template asset。两种读取位置必须投影同一 manifest、template root、reserved 状态和 manifest token 集合。
 
 [source,text]
 ----
@@ -50,7 +50,7 @@ manifest 顶层字段固定为：
 
 `id` 是 Creator 命令中的 template id。`language` 是语言分类。`status` 只能是 `implemented` 或 `reserved`。`implemented` 表示 Creator 可以实例化该模板。`reserved` 表示仓库保留该语言模板目录，但 Creator 不承诺生成该语言项目。
 
-本书定义的模板状态为：TypeScript 模板 status 是 `implemented`，Python、Rust 和 Go 模板 status 是 `reserved`。reserved 目录必须包含 manifest 和 template root；Creator 请求 reserved 模板时返回 `TEMPLATE_NOT_IMPLEMENTED`，不得生成空项目或半成品项目。
+本书定义的模板状态为：TypeScript 和 Rust 模板 status 是 `implemented`，Python 和 Go 模板 status 是 `reserved`。reserved 目录必须包含 manifest 和 template root；Creator 请求 reserved 模板时返回 `TEMPLATE_NOT_IMPLEMENTED`，不得生成空项目或半成品项目。
 
 `identity` 定义模板需要的身份槽位。TypeScript manifest 的身份槽位固定为：
 
@@ -71,7 +71,33 @@ manifest 顶层字段固定为：
 }
 ----
 
-`tokens` 定义模板源中的机器占位符。模板源必须使用显式 Rootward token，不得依赖自然示例词替换。TypeScript 模板固定使用以下 token：
+Rust manifest 的身份槽位固定为：
+
+[source,json]
+----
+{
+  "cliName": {
+    "required": true,
+    "pattern": "^[a-z][a-z0-9-]*$"
+  },
+  "configDirName": {
+    "derivedFrom": "cliName",
+    "format": ".{cliName}"
+  },
+  "crateName": {
+    "required": true,
+    "pattern": "^[a-z][a-z0-9_-]*$"
+  },
+  "binName": {
+    "required": true,
+    "pattern": "^[a-z][a-z0-9-]*$"
+  }
+}
+----
+
+`tokens` 定义模板源中的机器占位符。模板源必须使用 manifest 显式声明的 token，不得依赖自然示例词替换。token 字面形态可以按语言和文件语法选择；它必须能够被 Creator 精确替换，不能与同一模板内其他 token 形成前缀重叠，并且不得阻止仓库模板源作为该语言的有效项目接受验证。
+
+TypeScript 模板固定使用以下 token：
 
 [source,text]
 ----
@@ -80,7 +106,17 @@ __ROOTWARD_CONFIG_DIR_NAME__
 __ROOTWARD_PACKAGE_NAME__
 ----
 
-`foo` 可以在本书中作为 CLI name 的解释性例子存在；模板源中不得把 `foo` 当作待替换身份。Creator 替换完成后，生成物中不得残留 `__ROOTWARD_` token。残留 token 返回 `TOKEN_RESIDUE_FOUND`。
+Rust 模板使用 Cargo 语法合法的 token，例如：
+
+[source,text]
+----
+rootward-token-cli-name
+.rootward-token-config-dir-name
+rootward_token_crate_name
+rootward-token-bin-name
+----
+
+`foo` 可以在本书中作为 CLI name 的解释性例子存在；模板源中不得把 `foo` 当作待替换身份。Creator 替换完成后，生成物中不得残留 manifest `tokens` 中声明的任一 token。残留 token 返回 `TOKEN_RESIDUE_FOUND`。
 
 `exclude` 定义复制时排除的路径。TypeScript 模板固定排除：
 
@@ -108,6 +144,29 @@ src/index.test.ts
 tsconfig.json
 tsdown.config.ts
 vitest.config.ts
+----
+
+Rust 模板至少排除以下路径：
+
+[source,json]
+----
+[
+  "target",
+  "temporary"
+]
+----
+
+Rust 模板至少检查以下路径：
+
+[source,text]
+----
+Cargo.toml
+README.md
+src/main.rs
+src/lib.rs
+src/cli.rs
+src/core/constants.rs
+tests/cli_contract.rs
 ----
 
 `nextCommands` 定义 Creator 成功输出中的建议命令。Creator 不自动执行这些命令。

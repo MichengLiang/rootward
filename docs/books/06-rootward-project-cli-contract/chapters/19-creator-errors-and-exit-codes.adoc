@@ -89,7 +89,7 @@ Creator 错误码固定为：
 
 | `TOKEN_RESIDUE_FOUND`
 | `6`
-| 生成物仍残留 Rootward identity token。
+| 生成物仍残留 manifest `tokens` 中声明的 identity token。
 
 | `POSTCHECK_FAILED`
 | `6`

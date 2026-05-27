@@ -41,7 +41,8 @@ Rootward 测试证明公共契约成立。测试分为生成物契约测试和 C
 * `discover` 按 exclude 排除文件。
 * `discover --source <id>` 只展开指定 source。
 * `discover --json` 输出 project root、config path、sources 和 total files。
-* `respect_gitignore = true` 时排除 `.gitignore` 声明路径。
+* `respect_gitignore = true` 时排除 project root 内部 gitignore 规则声明的路径。
+* project root 外部的 gitignore 规则不影响发现结果。
 * `--no-respect-gitignore` 覆盖配置。
 * `include_hidden = false` 时不扫描隐藏路径。
 * `--include-hidden` 覆盖配置。
@@ -85,23 +86,27 @@ Creator 契约测试必须覆盖以下行为。
 
 * Creator development tests 从仓库 `templates/` 实例化模板，不从 package-local template source 实例化模板。
 * `create-rootward typescript <dir> --cli-name <name> --package-name <name>` 创建目标目录。
+* `create-rootward rust <dir> --cli-name <name> --crate-name <name> --bin-name <name>` 创建目标目录。
 * 非空目标目录返回 `TARGET_NOT_EMPTY`。
 * 目标路径是已存在文件或不能形成稳定目标目录边界时返回 `TARGET_INVALID`。
 * 未知 template 返回 `TEMPLATE_NOT_FOUND`。
 * reserved template 返回 `TEMPLATE_NOT_IMPLEMENTED`。
 * 缺少 `--cli-name` 返回 `USAGE_ERROR`。
-* 生成物不残留 `__ROOTWARD_` token。
-* 生成物 package.json 的 `name` 和 `bin` 与身份一致。
-* 生成物 constants 的 `cliName` 和 `configDirName` 与身份一致。
+* 生成物不残留 manifest `tokens` 中声明的 token。
+* TypeScript 生成物 package.json 的 `name` 和 `bin` 与身份一致。
+* Rust 生成物 Cargo.toml 的 package name 和 bin name 与身份一致。
+* 生成物 constants 中的 CLI name 和 config directory name 与身份一致。
 * `--json` 成功只在 stdout 输出 JSON。
 * `--json` 失败只在 stderr 输出 JSON，不混入命令解析库错误文本。
 * Package asset tests 构建 Creator package artifact，并验证 packaged template asset 与仓库 `templates/` 的 manifest 和 template root 集合一致。
 * Pack smoke tests 检查 npm tarball 携带 packaged template asset，且不携带 package-local template source、临时目录、依赖目录、覆盖率目录或构建缓存。
 * 生成后的 TypeScript 项目通过依赖安装、测试和构建。
+* Rust 模板源通过 `cargo fmt --check`、`cargo clippy --all-targets --all-features -- -D warnings`、`cargo test` 和 `cargo build`。
+* 生成后的 Rust 项目通过 `cargo fmt --check`、`cargo clippy --all-targets --all-features -- -D warnings`、`cargo test` 和 `cargo build`。
 
 测试 fixture 必须位于当前项目或模板目录内部。测试不得跨盘扫描系统目录、用户目录或工作区外路径。临时项目应创建在模板项目内的 `temporary/`、`tmp/` 或语言测试框架提供的受控临时目录中。
 
-每种语言可以使用不同测试工具。TypeScript 使用 Vitest，Python 使用 pytest，Rust 使用 assert_cmd/assert_fs/insta，Go 使用标准 testing。工具差异不能改变测试覆盖的 Rootward 行为。
+每种语言可以使用不同测试工具。TypeScript 使用 Vitest，Python 使用 pytest，Rust 使用 assert_cmd/assert_fs，Go 使用标准 testing。Rust 可以在需要逐字符固定 human output 时使用 insta。工具差异不能改变测试覆盖的 Rootward 行为。
 
 测试断言应优先使用公共契约面。JSON 测试断言 `ok`、`data`、`error.code`、`details` 和 project-root-relative POSIX path；human output 测试只断言关键公共文本和不含 stack trace；内部函数测试只服务无法通过公共命令稳定观察的路径规则、配置校验和错误映射。
 

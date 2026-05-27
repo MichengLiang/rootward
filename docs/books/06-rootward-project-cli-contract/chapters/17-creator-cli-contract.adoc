@@ -14,13 +14,15 @@ Creator npm package 必须包含 Creator runtime 和 packaged template asset。p
 create-rootward <template> <target-dir> --cli-name <name> [identity options] [--json]
 ----
 
-`<template>` 是模板 id。本书定义的模板 id 集合固定为 `typescript`、`python`、`rust` 和 `go`。`typescript` 是可实例化模板。`python`、`rust` 和 `go` 在仓库中以 `reserved` 状态存在；Creator 请求 reserved 模板时返回 `TEMPLATE_NOT_IMPLEMENTED`。
+`<template>` 是模板 id。本书定义的模板 id 集合固定为 `typescript`、`python`、`rust` 和 `go`。`typescript` 和 `rust` 是可实例化模板。`python` 和 `go` 在仓库中以 `reserved` 状态存在；Creator 请求 reserved 模板时返回 `TEMPLATE_NOT_IMPLEMENTED`。
 
 `<target-dir>` 是生成物目录。相对路径按 Creator 当前工作目录解析；绝对路径按宿主文件系统语义解析。解析后的目标目录形成 Creator 的写入边界。Creator 只允许写入不存在目录或空目录，并且不得把模板文件、替换结果、postcheck 或临时写入投影到目标目录之外。目标路径存在且非空时返回 `TARGET_NOT_EMPTY`。目标路径不可创建、不是目录或不能形成稳定目标目录边界时返回 `TARGET_INVALID`。Creator 不提供 merge、overwrite、force 或迁移语义。
 
 `--cli-name <name>` 是生成物 CLI name。该身份对所有语言模板必需。生成物 config directory name 由 Creator 按 `.${cliName}` 派生，并作为显式值写入生成物。生成物运行时不得从 package name、crate name、module path 或 distribution name 推导 config directory name。
 
-TypeScript 模板额外要求 `--package-name <name>`。Python 模板的身份槽位是 `--project-name <name>` 和 `--module-name <name>`。Rust 模板的身份槽位是 `--crate-name <name>` 和 `--bin-name <name>`。Go 模板的身份槽位是 `--module-path <path>`。未实现模板的身份槽位仍由 manifest 声明；Creator 在 reserved 状态下不生成这些模板。
+TypeScript 模板额外要求 `--package-name <name>`。Rust 模板额外要求 `--crate-name <name>` 和 `--bin-name <name>`。Python 模板的身份槽位是 `--project-name <name>` 和 `--module-name <name>`。Go 模板的身份槽位是 `--module-path <path>`。未实现模板的身份槽位仍由 manifest 声明；Creator 在 reserved 状态下不生成这些模板。
+
+Creator core 按 manifest `identity` 解释必需身份槽位、派生身份槽位和格式化身份槽位。命令表面可以只暴露 implemented 模板需要的身份 option；reserved 模板中的身份槽位是模板设计登记，不构成可生成承诺。
 
 `--json` 只改变 Creator 输出投影，不改变生成行为。Creator 不提供交互式选择，不读取 TTY 输入，不显示 prompt，不要求终端能力。Creator 的所有行为必须能通过 argv、stdout、stderr 和 exit code 稳定测试。
 

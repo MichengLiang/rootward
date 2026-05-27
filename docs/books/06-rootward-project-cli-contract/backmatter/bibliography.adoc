@@ -20,6 +20,7 @@
 * [[[clap]]] clap: https://docs.rs/clap/
 * [[[serde]]] serde: https://serde.rs/
 * [[[rust-ignore]]] ignore crate: https://docs.rs/ignore/
+* [[[globset]]] globset: https://docs.rs/globset/
 * [[[rust-toml]]] toml crate: https://docs.rs/toml/
 * [[[thiserror]]] thiserror: https://docs.rs/thiserror/
 * [[[camino]]] camino: https://docs.rs/camino/

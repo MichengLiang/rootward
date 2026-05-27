@@ -42,4 +42,4 @@ Rootward 模板是业务工具的起点。Creator 实例化模板时，必须替
 
 Creator 实例化模板后的第一组测试应先证明 Rootward 基础契约仍成立，再证明业务能力成立。业务测试不能替代 Rootward 契约测试。
 
-生成后的文档也属于公共契约。README、help text、错误 message、默认配置注释和示例命令必须使用替换后的工具身份。生成物不得残留 `__ROOTWARD_` identity token。残留 token 表示 Creator 替换失败，必须返回 `TOKEN_RESIDUE_FOUND`。
+生成后的文档也属于公共契约。README、help text、错误 message、默认配置注释和示例命令必须使用替换后的工具身份。生成物不得残留 manifest `tokens` 中声明的 identity token。残留 token 表示 Creator 替换失败，必须返回 `TOKEN_RESIDUE_FOUND`。

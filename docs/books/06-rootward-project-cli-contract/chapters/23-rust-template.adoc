@@ -1,7 +1,9 @@
 [#rust-template]
 == Rust 模板实现
 
-Rust 模板使用 Cargo、clap derive、serde、serde_json、toml、ignore、thiserror、camino、assert_cmd、assert_fs 和 insta。该组合承载 Rootward 的单 binary、高性能 discovery 和稳定错误语义。
+Rust 模板是 Rootward language template 的一个实现。该模板由 Creator 实例化为独立 Cargo 项目。生成物使用 Rust 2024、Cargo、clap derive、serde、serde_json、toml、ignore、globset、thiserror、camino、assert_cmd 和 assert_fs。该组合承载 Rootward 的单 binary、项目边界内 discovery、稳定 JSON 投影和稳定错误语义。
+
+Rust 模板源必须是有效 Cargo 项目。仓库维护者必须能在 `templates/rust/template` 内直接运行标准 Cargo 验证命令。该规则要求 Rust identity token 使用 Cargo 语法合法的字面形态；Rust 模板不得为了复用 TypeScript token 形态而让 `Cargo.toml`、binary target 或测试入口处于不可解析状态。
 
 依赖形状如下。
 
@@ -11,30 +13,32 @@ Rust 模板使用 Cargo、clap derive、serde、serde_json、toml、ignore、thi
 clap = { version = "4", features = ["derive"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-toml = "0.9"
+toml = "1"
 ignore = "0.4"
+globset = "0.4"
 thiserror = "2"
-camino = "1"
+camino = { version = "1", features = ["serde1"] }
 
 [dev-dependencies]
 assert_cmd = "2"
 assert_fs = "1"
-insta = "1"
 ----
 
 <<clap,clap derive>> 承担命令表面。`Parser` 和 `Subcommand` 映射 Rootward 命令树。clap 不承担项目发现、配置读取、文件发现或输出投影。
 
 <<serde,serde>> 承担结构化数据边界。配置输入、规范化配置、JSON 输出、diagnostics 和 error envelope 都应通过 serde 结构表达。
 
-<<rust-toml,toml crate>> 承担 TOML 解析和序列化。它服务 `.foo/config.toml` 读取、默认配置投影和 `config print`。
+<<rust-toml,toml crate>> 承担 TOML 解析和序列化。它服务 `.foo/config.toml` 读取、默认配置投影和 `config print`。Rust 模板使用当前稳定主版本，不把历史示例版本号作为契约。
 
-<<rust-ignore,ignore crate>> 承担递归目录遍历和 gitignore-aware discovery。Rust 模板不使用 walkdir 加自写 gitignore 规则作为默认方案。
+<<rust-ignore,ignore crate>> 承担递归目录遍历、hidden 过滤、symlink 遍历控制和 project root 内部 gitignore-aware discovery。Rust 模板不得让用户全局 gitignore 或 project root 祖先目录 `.gitignore` 污染 generated CLI 的发现结果。
+
+<<globset,globset>> 承担 source include 和 exclude pattern matching。Rootward 默认 include 使用 globstar 和 brace pattern；Rust 模板不使用手写字符串匹配承载该语义。
 
 <<thiserror,thiserror>> 承担内部错误类型。Rootward 错误码是公共契约，Rust 实现应定义 error enum，并把内部错误映射到稳定 `CliError`。任意错误上下文不能直接泄漏为公共错误。
 
 <<camino,camino>> 承担 UTF-8 路径投影。Rootward 公共路径是 project-root-relative POSIX string；camino 使该约束在 Rust 类型层更清楚。
 
-<<assert-cmd,assert_cmd>>、<<assert-fs,assert_fs>> 和 <<insta,insta>> 承担 CLI 契约测试。assert_cmd 运行命令并断言退出码和输出；assert_fs 创建临时项目；insta 固定人类输出、JSON envelope 和诊断快照。
+<<assert-cmd,assert_cmd>> 和 <<assert-fs,assert_fs>> 承担 CLI 契约测试。assert_cmd 运行生成物 binary 并断言退出码、stdout 和 stderr；assert_fs 创建受控临时项目。Rust 测试优先对 JSON envelope、错误码、退出码和 project-root-relative POSIX path 做结构化断言。需要逐字符固定 human output 时，维护者可以引入 <<insta,insta>>，但快照不是 Rust 模板成立的构成性条件。
 
 源码结构固定为：
 
@@ -45,6 +49,7 @@ src/
   lib.rs
   cli.rs
   commands/
+    mod.rs
     init.rs
     status.rs
     discover.rs
@@ -53,6 +58,7 @@ src/
     doctor.rs
     shared.rs
   core/
+    mod.rs
     constants.rs
     errors.rs
     result.rs
@@ -61,15 +67,19 @@ src/
     discovery.rs
     scanners.rs
   io/
+    mod.rs
     filesystem.rs
     output.rs
 
 tests/
   cli_contract.rs
-  snapshots/
 ----
 
-`main.rs` 是真实进程入口。`lib.rs` 导出可测试 API。`cli.rs` 只处理 clap 命令表面。core 层不依赖 clap types。
+`main.rs` 是真实进程入口。它读取 argv 和 cwd，调用 `run_cli`，写 stdout/stderr，并返回 exit code。`lib.rs` 导出可测试 API。`cli.rs` 只处理 clap 命令表面，并把 clap 解析结果转换为 Rootward command options。core 层不依赖 clap types。
+
+Rust 模板的 `Cargo.toml` 必须使用 manifest token 表达 crate name 和 binary name。crate name token 必须满足 Cargo package name 语法；binary name token 必须满足 Cargo binary target name 语法。Rust 模板的 constants 必须显式写入 CLI name 和 config directory name token；运行时不得从 crate name 或 binary name 推导 config directory name。
+
+clap usage error 必须映射为 `USAGE_ERROR`。`--json` 下的 unknown command、unknown option 和缺少 option value 失败输出只包含 Rootward JSON failure envelope，不得混入 clap 默认 error text、help text、panic 或 backtrace。
 
 验证命令固定为：
 
@@ -77,10 +87,11 @@ tests/
 ----
 cargo fmt --check
 cargo clippy --all-targets --all-features -- -D warnings
-cargo nextest run
 cargo test
 cargo build
 ----
+
+`cargo test` 是 Rust 模板的基础测试命令。仓库维护者可以额外使用 cargo-nextest 加速或增强测试运行，但 generated CLI 的 README 和 Rootward 完成判断不得要求普通消费者安装 nextest。
 
 Rust 模板不使用 structopt。clap derive 已经承担该位置。Rust 模板不使用 anyhow 作为公共错误模型。Rootward 的错误码和退出码必须由显式错误映射控制。
 

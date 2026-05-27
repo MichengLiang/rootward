@@ -39,7 +39,7 @@ type DiscoveredSource = {
 . 检查 source root 存在并且是目录。
 . 使用 `source.include` 在 source root 内展开文件。
 . 使用 `source.exclude` 排除 include 结果。
-. 按 `respect_gitignore` 应用项目 `.gitignore`。
+. 按 `respect_gitignore` 应用 project root 内部的 gitignore 规则。
 . 按 `include_hidden` 排除隐藏路径。
 . 按 `follow_symlinks` 控制符号链接遍历。
 . 将结果规范化为 project-root-relative POSIX path。
@@ -54,6 +54,8 @@ type DiscoveredSource = {
 
 source 匹配为空时，`discover` 返回成功并显示 `0 files`。空 source 是合法状态。`doctor` 会把空 source 报告为 warning，见 xref:doctor-diagnostics[]。
 
-Rootward 规定发现结果，不规定某个语言必须使用同一个遍历库。TypeScript 模板使用 globby；Python 模板使用 wcmatch 和 pathspec；Rust 模板使用 ignore crate；Go 模板使用 `filepath.WalkDir`、gobwas/glob 和 go-git gitignore。语言实现可以不同，公共路径形状和错误语义必须相同。
+`respect_gitignore = true` 只授权项目边界内的 ignore 语义。语言实现不得让用户全局 gitignore、Rootward 仓库祖先目录 `.gitignore` 或 project root 外部 ignore 文件影响 generated CLI 的发现结果。project root 内部的层级 `.gitignore` 属于项目边界内 ignore 语义；语言实现支持该语义时，必须在语言章节和测试中固定。
+
+Rootward 规定发现结果，不规定某个语言必须使用同一个遍历库。TypeScript 模板使用 globby；Python 模板使用 wcmatch 和 pathspec；Rust 模板使用 ignore crate 和 globset；Go 模板使用 `filepath.WalkDir`、gobwas/glob 和 go-git gitignore。语言实现可以不同，公共路径形状和错误语义必须相同。
 
 文件发现不承担业务解析。Markdown 标题提取、Python AST 分析、Rust crate 解析、Go package 解析都属于 scanner 或业务命令。文件发现只确定哪些项目文件进入工具视野。

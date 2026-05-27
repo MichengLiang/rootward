@@ -13,7 +13,7 @@
 * source id 唯一，并符合 CLI 标识符规则。
 * source root 相对 project root，且不能越界。
 * include/exclude 相对 source root。
-* 文件发现默认尊重 `.gitignore`。
+* 文件发现默认尊重 project root 内部 gitignore 规则。
 * 文件发现默认不跟随 symlink。
 * 文件发现默认不包含 hidden path。
 * 发现结果使用 project-root-relative POSIX path。
@@ -46,8 +46,8 @@ Creator 符合 Rootward 创建器契约时，应满足以下清单。
 * `reserved` 模板返回 `TEMPLATE_NOT_IMPLEMENTED`。
 * 目标目录是 Creator 的写入边界。
 * 非空目标目录返回 `TARGET_NOT_EMPTY`。
-* 生成物身份通过 manifest identity slots 和 Rootward identity tokens 替换。
-* 生成物不得残留 `__ROOTWARD_` token。
+* 生成物身份通过 manifest identity slots 和 manifest tokens 替换。
+* 生成物不得残留 manifest `tokens` 中声明的 token。
 * Creator JSON success 使用 `{ "ok": true, "data": ... }`。
 * Creator JSON failure 使用 `{ "ok": false, "error": ... }`。
 * Creator 错误码和退出码稳定。
