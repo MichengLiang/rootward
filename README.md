@@ -2,11 +2,11 @@
 
 Project-oriented CLI templates for TypeScript, Python, Rust, and Go.
 
-[![npm version](https://img.shields.io/npm/v/create-rootward.svg)](https://www.npmjs.com/package/create-rootward)
+[![npm version](https://img.shields.io/npm/v/create-rootward.svg?cacheSeconds=300&color=blue)](https://www.npmjs.com/package/create-rootward)
 [![CI](https://github.com/MichengLiang/rootward/actions/workflows/ci.yml/badge.svg)](https://github.com/MichengLiang/rootward/actions/workflows/ci.yml)
 [![Pages](https://github.com/MichengLiang/rootward/actions/workflows/pages.yml/badge.svg)](https://github.com/MichengLiang/rootward/actions/workflows/pages.yml)
-[![License](https://img.shields.io/npm/l/create-rootward.svg)](./LICENSE)
-[![Node.js](https://img.shields.io/node/v/create-rootward.svg)](./packages/create-rootward/package.json)
+[![License](https://img.shields.io/npm/l/create-rootward.svg?cacheSeconds=300)](./LICENSE)
+[![Node.js](https://img.shields.io/node/v/create-rootward.svg?cacheSeconds=300)](./packages/create-rootward/package.json)
 
 Rootward defines a cross-language contract for developer CLIs that need a project context before they run business logic: initialize a hidden tool directory, discover the project root from the current working directory, load project-local TOML configuration, expand source globs, respect `.gitignore`, dispatch scanner registries, and expose stable human and JSON command output.
 
