@@ -19,7 +19,7 @@
   "homepage": "https://github.com/MichengLiang/rootward#readme",
   "type": "module",
   "bin": {
-    "create-rootward": "./dist/bin.mjs"
+    "create-rootward": "dist/bin.mjs"
   },
   "exports": {
     ".": {
