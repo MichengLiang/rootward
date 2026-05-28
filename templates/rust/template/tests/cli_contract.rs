@@ -1,12 +1,11 @@
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::process::Command;
-use std::sync::atomic::{AtomicUsize, Ordering};
 
 use assert_cmd::cargo::cargo_bin;
+use assert_fs::TempDir;
 use serde_json::Value;
 
-static NEXT_ID: AtomicUsize = AtomicUsize::new(0);
 const CONFIG_DIR_NAME: &str = ".rootward-token-config-dir-name";
 const RUNTIME_GITIGNORE: &str = "*\n!.gitignore\n";
 const DEFAULT_CONFIG_TOML: &str = r#"[discovery]
@@ -30,33 +29,27 @@ scanner = "python"
 "#;
 
 struct TempProject {
-    root: PathBuf,
+    root: TempDir,
 }
 
 impl TempProject {
     fn new() -> Self {
-        let id = NEXT_ID.fetch_add(1, Ordering::SeqCst);
-        let root = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("temporary")
-            .join("test-fixtures")
-            .join(format!("project-{}-{id}", std::process::id()));
-        let _ = fs::remove_dir_all(&root);
-        fs::create_dir_all(&root).unwrap();
+        let root = TempDir::new().unwrap();
         Self { root }
     }
 
     fn path(&self) -> &Path {
-        &self.root
+        self.root.path()
     }
 
     fn write(&self, relative_path: &str, content: &str) {
-        let path = self.root.join(relative_path);
+        let path = self.path().join(relative_path);
         fs::create_dir_all(path.parent().unwrap()).unwrap();
         fs::write(path, content).unwrap();
     }
 
     fn mkdir(&self, relative_path: &str) {
-        fs::create_dir_all(self.root.join(relative_path)).unwrap();
+        fs::create_dir_all(self.path().join(relative_path)).unwrap();
     }
 
     fn write_config(&self, content: &str) {
@@ -71,12 +64,6 @@ impl TempProject {
             project.write(path, content);
         }
         project
-    }
-}
-
-impl Drop for TempProject {
-    fn drop(&mut self) {
-        let _ = fs::remove_dir_all(&self.root);
     }
 }
 
@@ -278,18 +265,25 @@ scanner = "text"
 
 #[test]
 fn validates_duplicate_traversing_and_backslash_config_fields() {
-    let duplicate = TempProject::new();
-    duplicate.write_config(&DEFAULT_CONFIG_TOML.replace("id = \"python\"", "id = \"docs\""));
-    let traversal = TempProject::new();
-    traversal
-        .write_config(&DEFAULT_CONFIG_TOML.replace("root = \"docs\"", "root = \"docs/../src\""));
-    let backslash = TempProject::new();
-    backslash.write_config(&DEFAULT_CONFIG_TOML.replace(
-        "include = [\"**/*.{md,mdx,rst,adoc,txt}\"]",
-        "include = [\"**\\\\*.md\"]",
-    ));
+    let invalid_configs = [
+        DEFAULT_CONFIG_TOML.replace("id = \"python\"", "id = \"docs\""),
+        DEFAULT_CONFIG_TOML.replace("id = \"docs\"", "id = \"1docs\""),
+        DEFAULT_CONFIG_TOML.replace("root = \"docs\"", "root = \"\""),
+        DEFAULT_CONFIG_TOML.replace("root = \"docs\"", "root = \"/outside\""),
+        DEFAULT_CONFIG_TOML.replace("root = \"docs\"", "root = \"docs/../src\""),
+        DEFAULT_CONFIG_TOML.replace("root = \"docs\"", "root = \"docs\\\\nested\""),
+        DEFAULT_CONFIG_TOML.replace("include = [\"**/*.{md,mdx,rst,adoc,txt}\"]", "include = []"),
+        DEFAULT_CONFIG_TOML.replace(
+            "include = [\"**/*.{md,mdx,rst,adoc,txt}\"]",
+            "include = [\"**\\\\*.md\"]",
+        ),
+        DEFAULT_CONFIG_TOML.replace("exclude = []", "exclude = [\"private\\\\**\"]"),
+        DEFAULT_CONFIG_TOML.replace("scanner = \"text\"", "scanner = \"\""),
+    ];
 
-    for project in [duplicate, traversal, backslash] {
+    for config in invalid_configs {
+        let project = TempProject::new();
+        project.write_config(&config);
         let output = run_cli(["config", "print", "--json"], project.path());
         assert_eq!(output.status.code(), Some(4));
         assert_eq!(json_stderr(&output)["error"]["code"], "CONFIG_INVALID");
@@ -327,8 +321,11 @@ fn applies_gitignore_hidden_and_symlink_discovery_rules() {
     let project = TempProject::initialized(&[
         ("docs/visible.md", "visible\n"),
         ("docs/ignored.md", "ignored\n"),
+        ("docs/nested/hidden.md", "nested\n"),
+        ("docs/nested/visible.md", "nested\n"),
         ("docs/.hidden.md", "hidden\n"),
         (".gitignore", "docs/ignored.md\n"),
+        ("docs/nested/.gitignore", "hidden.md\n"),
     ]);
 
     let defaults = run_cli(
@@ -349,9 +346,12 @@ fn applies_gitignore_hidden_and_symlink_discovery_rules() {
     );
 
     assert!(defaults.stdout.contains("docs/visible.md"));
+    assert!(defaults.stdout.contains("docs/nested/visible.md"));
     assert!(!defaults.stdout.contains("docs/ignored.md"));
+    assert!(!defaults.stdout.contains("docs/nested/hidden.md"));
     assert!(!defaults.stdout.contains("docs/.hidden.md"));
     assert!(overridden.stdout.contains("docs/ignored.md"));
+    assert!(overridden.stdout.contains("docs/nested/hidden.md"));
     assert!(overridden.stdout.contains("docs/.hidden.md"));
 
     let external = TempProject::new();
@@ -525,6 +525,92 @@ fn config_print_applies_discovery_overrides() {
             "includeHidden": true
         })
     );
+}
+
+#[test]
+fn config_print_human_output_is_parseable_toml() {
+    let project = TempProject::initialized(&[]);
+    project.write_config(
+        r#"[discovery]
+respect_gitignore = true
+follow_symlinks = false
+include_hidden = false
+
+[[sources]]
+id = "docs"
+root = "docs"
+include = ["**/*.md", "**/*.txt"]
+exclude = ["private/**"]
+scanner = "text\"scanner"
+"#,
+    );
+
+    let output = run_cli(["config", "print"], project.path());
+
+    assert_eq!(output.status.code(), Some(0));
+    toml::from_str::<toml::Value>(&output.stdout).unwrap();
+}
+
+#[test]
+fn config_print_human_output_can_be_read_back_by_cli() {
+    let project = TempProject::initialized(&[]);
+    let printed = run_cli(
+        [
+            "config",
+            "print",
+            "--no-respect-gitignore",
+            "--follow-symlinks",
+            "--include-hidden",
+        ],
+        project.path(),
+    );
+    project.write_config(&printed.stdout);
+
+    let output = run_cli(["config", "print", "--json"], project.path());
+
+    assert_eq!(output.status.code(), Some(0));
+    assert_eq!(
+        json_stdout(&output)["data"]["discovery"],
+        serde_json::json!({
+            "respectGitignore": false,
+            "followSymlinks": true,
+            "includeHidden": true
+        })
+    );
+}
+
+#[cfg(unix)]
+#[test]
+fn rejects_source_root_symlink_that_escapes_project_root() {
+    let project = TempProject::initialized(&[]);
+    let external = TempProject::new();
+    external.write("outside.md", "outside\n");
+    std::os::unix::fs::symlink(external.path(), project.path().join("docs")).unwrap();
+
+    let output = run_cli(["discover", "--source", "docs", "--json"], project.path());
+
+    assert_eq!(output.status.code(), Some(4));
+    assert_eq!(json_stderr(&output)["error"]["code"], "CONFIG_INVALID");
+}
+
+#[test]
+fn doctor_reports_unregistered_scanners_even_when_source_root_is_missing() {
+    let project = TempProject::initialized(&[]);
+    project
+        .write_config(&DEFAULT_CONFIG_TOML.replace("scanner = \"text\"", "scanner = \"unknown\""));
+
+    let output = run_cli(["doctor", "--json"], project.path());
+    let error = json_stderr(&output);
+    let diagnostics = error["error"]["details"]["diagnostics"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|item| item["code"].as_str().unwrap().to_string())
+        .collect::<Vec<_>>();
+
+    assert_eq!(output.status.code(), Some(5));
+    assert!(diagnostics.contains(&"SOURCE_ROOT_NOT_FOUND".to_string()));
+    assert!(diagnostics.contains(&"SCANNER_NOT_REGISTERED".to_string()));
 }
 
 #[test]

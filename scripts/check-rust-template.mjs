@@ -1,9 +1,11 @@
 import { spawn } from "node:child_process";
+import { rm } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const templateRoot = resolve(repositoryRoot, "templates", "rust", "template");
+const targetDir = resolve(repositoryRoot, "temporary", "rust-template-target");
 
 const commands = [
   ["cargo", ["fmt", "--check"]],
@@ -14,7 +16,11 @@ const commands = [
 
 async function run(command, args, cwd) {
   await new Promise((resolvePromise, reject) => {
-    const child = spawn(command, args, { cwd, stdio: "inherit" });
+    const child = spawn(command, args, {
+      cwd,
+      env: { ...process.env, CARGO_TARGET_DIR: targetDir },
+      stdio: "inherit",
+    });
     child.on("error", reject);
     child.on("exit", (code) => {
       if (code === 0) {
@@ -26,6 +32,11 @@ async function run(command, args, cwd) {
   });
 }
 
-for (const [command, args] of commands) {
-  await run(command, args, templateRoot);
+await rm(targetDir, { recursive: true, force: true });
+try {
+  for (const [command, args] of commands) {
+    await run(command, args, templateRoot);
+  }
+} finally {
+  await rm(targetDir, { recursive: true, force: true });
 }

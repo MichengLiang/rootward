@@ -58,6 +58,19 @@ pub struct NormalizedConfig {
     pub sources: Vec<SourceConfig>,
 }
 
+#[derive(Serialize)]
+struct TomlConfig<'a> {
+    discovery: TomlDiscoveryConfig,
+    sources: &'a [SourceConfig],
+}
+
+#[derive(Serialize)]
+struct TomlDiscoveryConfig {
+    respect_gitignore: bool,
+    follow_symlinks: bool,
+    include_hidden: bool,
+}
+
 #[derive(Clone, Copy, Debug, Default)]
 pub struct DiscoveryOverrides {
     pub respect_gitignore: Option<bool>,
@@ -174,19 +187,13 @@ pub fn apply_discovery_overrides(
 }
 
 pub fn serialize_config(config: &NormalizedConfig) -> String {
-    let mut output = format!(
-        "[discovery]\nrespect_gitignore = {}\nfollow_symlinks = {}\ninclude_hidden = {}\n",
-        config.discovery.respect_gitignore,
-        config.discovery.follow_symlinks,
-        config.discovery.include_hidden
-    );
-    for source in &config.sources {
-        output.push_str("\n[[sources]]\n");
-        output.push_str(&format!("id = \"{}\"\n", source.id));
-        output.push_str(&format!("root = \"{}\"\n", source.root));
-        output.push_str(&format!("include = {:?}\n", source.include));
-        output.push_str(&format!("exclude = {:?}\n", source.exclude));
-        output.push_str(&format!("scanner = \"{}\"\n", source.scanner));
-    }
-    output
+    let toml_config = TomlConfig {
+        discovery: TomlDiscoveryConfig {
+            respect_gitignore: config.discovery.respect_gitignore,
+            follow_symlinks: config.discovery.follow_symlinks,
+            include_hidden: config.discovery.include_hidden,
+        },
+        sources: &config.sources,
+    };
+    toml::to_string_pretty(&toml_config).expect("normalized config must serialize to TOML")
 }

@@ -58,6 +58,7 @@ try {
     "package/node_modules/",
     "package/coverage/",
     "package/dist/templates/rust/template/target/",
+    "package/dist/templates/rust/template/temporary/",
   ];
 
   const forbiddenSegments = ["/target/"];

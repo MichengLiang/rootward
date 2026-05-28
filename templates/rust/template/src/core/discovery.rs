@@ -1,5 +1,5 @@
 use std::collections::HashSet;
-use std::fs;
+use std::{fs, io};
 
 use camino::{Utf8Path, Utf8PathBuf};
 use globset::{Glob, GlobSet, GlobSetBuilder};
@@ -130,12 +130,20 @@ pub fn discover_files(
                 Some(json!({ "sourceId": source.id, "root": source.root })),
             ));
         }
-        let metadata = fs::metadata(&source_root).map_err(|_| {
-            fail(
-                CliErrorCode::SourceRootNotFound,
-                "Source root does not exist.",
-                Some(json!({ "sourceId": source.id, "root": source.root, "path": source_root })),
-            )
+        let metadata = fs::metadata(&source_root).map_err(|error| {
+            if error.kind() == io::ErrorKind::NotFound {
+                fail(
+                    CliErrorCode::SourceRootNotFound,
+                    "Source root does not exist.",
+                    Some(json!({ "sourceId": source.id, "root": source.root, "path": source_root })),
+                )
+            } else {
+                fail(
+                    CliErrorCode::DiscoveryFailed,
+                    "Source root metadata could not be read.",
+                    Some(json!({ "sourceId": source.id, "root": source.root, "path": source_root, "reason": error.to_string() })),
+                )
+            }
         })?;
         if !metadata.is_dir() {
             return Err(fail(
@@ -144,14 +152,29 @@ pub fn discover_files(
                 Some(json!({ "sourceId": source.id, "root": source.root, "path": source_root })),
             ));
         }
+        let canonical_source_root = source_root.canonicalize_utf8().map_err(|error| {
+            fail(
+                CliErrorCode::DiscoveryFailed,
+                "Source root could not be canonicalized.",
+                Some(json!({ "sourceId": source.id, "root": source.root, "path": source_root, "reason": error.to_string() })),
+            )
+        })?;
+        if !is_inside(&canonical_root, &canonical_source_root) {
+            return Err(fail(
+                CliErrorCode::ConfigInvalid,
+                "Source root escapes project root.",
+                Some(json!({ "sourceId": source.id, "root": source.root, "path": source_root })),
+            ));
+        }
 
         let include = compile_patterns(&source.include, &source.id)?;
         let exclude = compile_patterns(&source.exclude, &source.id)?;
-        let mut builder = WalkBuilder::new(&source_root);
+        let mut builder = WalkBuilder::new(&context.project_root);
         builder
             .hidden(false)
             .follow_links(config.discovery.follow_symlinks)
             .parents(false)
+            .require_git(false)
             .git_global(false)
             .git_exclude(false)
             .git_ignore(config.discovery.respect_gitignore);
@@ -181,6 +204,9 @@ pub fn discover_files(
                 continue;
             }
             let path = utf8_path(entry.path())?;
+            if !is_inside(&source_root, &path) {
+                continue;
+            }
             if config.discovery.follow_symlinks {
                 let real = path.canonicalize_utf8().map_err(|error| {
                     fail(

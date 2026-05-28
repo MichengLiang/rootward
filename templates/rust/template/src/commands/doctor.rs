@@ -44,25 +44,27 @@ pub fn doctor_command(
 
     for source in &config.sources {
         let root = context.project_root.join(&source.root);
-        if !fs::metadata(&root)
+        let root_ok = fs::metadata(&root)
             .map(|metadata| metadata.is_dir())
-            .unwrap_or(false)
-        {
+            .unwrap_or(false);
+        let scanner_ok = is_registered(&source.scanner);
+        if !root_ok {
             diagnostics.push(Diagnostic {
                 level: "error".to_string(),
                 code: "SOURCE_ROOT_NOT_FOUND".to_string(),
                 message: "Source root is missing.".to_string(),
                 source_id: Some(source.id.clone()),
             });
-            continue;
         }
-        if !is_registered(&source.scanner) {
+        if !scanner_ok {
             diagnostics.push(Diagnostic {
                 level: "error".to_string(),
                 code: "SCANNER_NOT_REGISTERED".to_string(),
                 message: "Scanner is not registered.".to_string(),
                 source_id: Some(source.id.clone()),
             });
+        }
+        if !root_ok || !scanner_ok {
             continue;
         }
         let discovery = discover_files(&context, &config, Some(&source.id))?;

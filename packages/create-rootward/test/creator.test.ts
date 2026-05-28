@@ -234,6 +234,7 @@ describe("create-rootward", () => {
     const generatedTexts = await readAllTextFiles(target);
 
     expect(cargoToml).toContain('name = "rust-tool-core"');
+    expect(cargoToml).toContain('name = "rust_tool_core"');
     expect(cargoToml).toContain('name = "rust-tool-bin"');
     expect(constants).toContain('pub const CLI_NAME: &str = "rust-tool";');
     expect(constants).toContain(
@@ -241,6 +242,10 @@ describe("create-rootward", () => {
     );
     expect(readme).toContain("# rust-tool");
     expect(readme).toContain(".rust-tool/config.toml");
+    expect(readme).toContain("rust-tool-bin init");
+    await expect(
+      readFile(join(target, "src", "main.rs"), "utf8"),
+    ).resolves.toContain("rust_tool_core::run_cli");
     for (const token of Object.keys(manifest.tokens)) {
       expect(generatedTexts.some((text) => text.includes(token))).toBe(false);
     }
@@ -513,6 +518,20 @@ describe("create-rootward", () => {
       ],
       parent,
     );
+    const reservedRustCrateModule = await run(
+      [
+        "rust",
+        "target",
+        "--cli-name",
+        "tool",
+        "--crate-name",
+        "type",
+        "--bin-name",
+        "tool",
+        "--json",
+      ],
+      parent,
+    );
 
     for (const result of [
       missingCliName,
@@ -520,6 +539,7 @@ describe("create-rootward", () => {
       unknownOption,
       missingCrateName,
       missingBinName,
+      reservedRustCrateModule,
     ]) {
       expect(result.exitCode).toBe(2);
       expect(result.stdout).toBe("");

@@ -7,12 +7,12 @@ Project configuration lives at `.rootward-token-config-dir-name/config.toml`.
 ## Commands
 
 ```bash
-rootward-token-cli-name init
-rootward-token-cli-name status --json
-rootward-token-cli-name discover --json
-rootward-token-cli-name scan --json
-rootward-token-cli-name config print --json
-rootward-token-cli-name doctor --json
+rootward-token-bin-name init
+rootward-token-bin-name status --json
+rootward-token-bin-name discover --json
+rootward-token-bin-name scan --json
+rootward-token-bin-name config print --json
+rootward-token-bin-name doctor --json
 ```
 
 Use JSON output for scripts, CI, and editor integrations.

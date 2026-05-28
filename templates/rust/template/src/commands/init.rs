@@ -90,21 +90,21 @@ pub fn init_command(cwd: &Utf8Path, path: Option<&Path>, force: bool) -> CliResu
     })?;
     fs::write(&config_path, DEFAULT_CONFIG_TOML).map_err(|error| {
         fail(
-            CliErrorCode::InternalError,
+            CliErrorCode::InitTargetInvalid,
             "Config file could not be written.",
             Some(json!({ "configPath": config_path, "reason": error.to_string() })),
         )
     })?;
     fs::write(cache_dir.join(".gitignore"), RUNTIME_GITIGNORE).map_err(|error| {
         fail(
-            CliErrorCode::InternalError,
+            CliErrorCode::InitTargetInvalid,
             "Cache .gitignore could not be written.",
             Some(json!({ "cacheDir": cache_dir, "reason": error.to_string() })),
         )
     })?;
     fs::write(state_dir.join(".gitignore"), RUNTIME_GITIGNORE).map_err(|error| {
         fail(
-            CliErrorCode::InternalError,
+            CliErrorCode::InitTargetInvalid,
             "State .gitignore could not be written.",
             Some(json!({ "stateDir": state_dir, "reason": error.to_string() })),
         )

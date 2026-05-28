@@ -79,6 +79,88 @@ function formatDerivedIdentity(
   });
 }
 
+function formatIdentityValue(
+  format: string | undefined,
+  sourceValue: string,
+  identity: Record<string, string>,
+) {
+  switch (format) {
+    case undefined:
+      return sourceValue;
+    case "rust_module":
+      return rustModuleName(sourceValue);
+    default:
+      return formatDerivedIdentity(format, identity);
+  }
+}
+
+const rustKeywords = new Set([
+  "as",
+  "async",
+  "await",
+  "break",
+  "const",
+  "continue",
+  "crate",
+  "dyn",
+  "else",
+  "enum",
+  "extern",
+  "false",
+  "fn",
+  "for",
+  "if",
+  "impl",
+  "in",
+  "let",
+  "loop",
+  "match",
+  "mod",
+  "move",
+  "mut",
+  "pub",
+  "ref",
+  "return",
+  "self",
+  "Self",
+  "static",
+  "struct",
+  "super",
+  "trait",
+  "true",
+  "type",
+  "unsafe",
+  "use",
+  "where",
+  "while",
+  "abstract",
+  "become",
+  "box",
+  "do",
+  "final",
+  "macro",
+  "override",
+  "priv",
+  "typeof",
+  "unsized",
+  "virtual",
+  "yield",
+  "try",
+  "union",
+  "'static",
+]);
+
+function rustModuleName(value: string) {
+  const moduleName = value.replaceAll("-", "_");
+  if (!/^[a-z_][a-z0-9_]*$/.test(moduleName) || rustKeywords.has(moduleName)) {
+    throw createError("USAGE_ERROR", "Rust crate name is not valid.", {
+      crateName: value,
+      crateModuleName: moduleName,
+    });
+  }
+  return moduleName;
+}
+
 function validateIdentityPattern(
   identityKey: string,
   value: string,
@@ -164,9 +246,11 @@ function identityFor(options: CreateOptions, manifest: TemplateManifest) {
           },
         );
       }
-      identity[identityKey] = slot.format
-        ? formatDerivedIdentity(slot.format, identity)
-        : sourceValue;
+      identity[identityKey] = formatIdentityValue(
+        slot.format,
+        sourceValue,
+        identity,
+      );
       continue;
     }
 
